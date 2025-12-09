@@ -54,7 +54,7 @@ public class SymbolsArgument implements CommandArgument {
         }
 
         GuiSymbols.open(sender.asPlayer(), (result, symbol) -> {
-            if (result && symbol != null) {
+            if (result) {
                 clan.setSymbols(rank, symbol);
                 sender.sendMessage("%prefix% &aHas cambiado el símbolo al rango " + rank.getDisplayName() + " por el símbolo " + symbol.getSymbol() + ".");
             } else {
