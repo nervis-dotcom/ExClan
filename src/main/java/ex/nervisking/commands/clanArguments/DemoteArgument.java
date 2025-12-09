@@ -22,12 +22,11 @@ public class DemoteArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clan = clanManager.getClan(uuid);
         if (!clan.isManager(uuid)) {
             sender.sendMessage("%prefix% &cNo eres líder del clan.");
             return;
@@ -67,5 +66,21 @@ public class DemoteArgument implements CommandArgument {
         }
         clan.setMemberRank(playerName.getUniqueId(), rank);
         sender.sendMessage("%prefix% &aJugador " + playerName.getName() + " demotado a: " + rank.getDisplayName() + ".");
+    }
+
+    @Override
+    public Completions tab(Sender sender, Arguments args, Completions completions) {
+        Clan clan = clanManager.getClan(sender.getUniqueId());
+        if (clan == null) {
+            return completions;
+        }
+        if (args.has(1)) {
+            completions.add(clan.getOnlineAll().stream().map(OfflinePlayer::getName).toList());
+        }
+        if (args.has(2)) {
+            completions.add(Rank.getRank());
+        }
+
+        return completions;
     }
 }

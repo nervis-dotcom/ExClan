@@ -22,12 +22,11 @@ public class LeaveArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments arguments) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clan = clanManager.getClan(uuid);
         if (clan.isLader(uuid)) {
             sender.sendMessage("%prefix% &cNo puedes salir del clan siendo líder, Elimina el clan o delega a un nuevo líder.");
             return;
@@ -36,9 +35,8 @@ public class LeaveArgument implements CommandArgument {
         if (clan.hasMember(uuid)) {
             clan.removeMember(uuid);
             sender.sendMessage("%prefix% &aHas salido del clan: " + clan.getClanName());
-            for (var member : clan.getOnlineAll()) {
-                utilsManagers.sendMessage(member, "%prefix% &aEl jugador: " + sender.getName() + " ha salido del clan.");
-            }
+
+            clan.getOnlineAll().forEach(member -> utilsManagers.sendMessage(member, "%prefix% &aEl jugador: " + sender.getName() + " ha salido del clan."));
         }
     }
 }

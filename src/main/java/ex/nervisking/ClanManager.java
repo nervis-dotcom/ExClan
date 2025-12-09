@@ -1,6 +1,9 @@
 package ex.nervisking;
 
 import ex.nervisking.models.Clan;
+import org.bukkit.entity.Player;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
@@ -36,7 +39,7 @@ public class ClanManager {
         return clanData.containsKey(clanName);
     }
 
-    public Clan getClan(UUID uuid) {
+    public @Nullable Clan getClan(UUID uuid) {
         for (var clan : clanData.values()) {
             if (clan.hasMemberOf(uuid)) {
                 return clan;
@@ -45,11 +48,31 @@ public class ClanManager {
         return null;
     }
 
-    public Clan getClan(String name) {
+    public @Nullable Clan getClan(String name) {
         return clanData.get(name);
     }
 
     public boolean isInClan(UUID uuid) {
         return getClan(uuid) != null;
+    }
+
+    public Collection<? extends Player> getOnlineAll(@NotNull Clan clan) {
+        List<Player> members = new ArrayList<>(clan.getOnlineAll());
+        for (var allys : clan.getAllys()) {
+            var ally = getClan(allys);
+            if (ally == null) {
+                continue;
+            }
+            members.addAll(ally.getOnlineAll());
+        }
+        return members;
+    }
+
+    public boolean hasAllyPlayer(@NotNull Clan clan, UUID uuid) {
+        for (var allys : clan.getAllys()) {
+            var ally = getClan(allys);
+            return ally != null && ally.hasMemberOf(uuid);
+        }
+        return false;
     }
 }

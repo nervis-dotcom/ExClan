@@ -19,12 +19,11 @@ public class TagArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clanName = clanManager.getClan(uuid);
+        if (clanName == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clanName = clanManager.getClan(uuid);
         if (!clanName.isLader(uuid)) {
             sender.sendMessage("%prefix% &cNo eres el líder del clan.");
             return;

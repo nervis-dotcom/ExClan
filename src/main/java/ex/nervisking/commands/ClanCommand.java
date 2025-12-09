@@ -12,7 +12,9 @@ public class ClanCommand extends CommandArgumentBase {
         super(
                 new CreateArgument(plugin), new DisBandeArgument(plugin), new TagArgument(plugin), new InviteArgument(plugin),
                 new JoinArgument(plugin), new LeaveArgument(plugin), new KickArgument(plugin), new PromoteArgument(plugin),
-                new DemoteArgument(plugin), new ChatArgument(plugin), new DelegateArgument(plugin), new WebhooksArgument(plugin)
+                new DemoteArgument(plugin), new ChatArgument(plugin), new DelegateArgument(plugin), new WebhooksArgument(plugin),
+                new AllysArgument(plugin), new PvpArgument(plugin), new BanArgument(plugin), new UnBanArgument(plugin),
+                new SymbolsArgument(plugin)
         );
     }
 }

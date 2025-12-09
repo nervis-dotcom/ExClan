@@ -3,7 +3,7 @@
     <output-path>$USER_HOME$/Music/server2/plugins</output-path>
     <root id="archive" name="ExClan.jar">
       <element id="module-output" name="ExClan" />
-      <element id="extracted-dir" path="$USER_HOME$/Music/server2/plugins/ExApi.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$PROJECT_DIR$/../Source/ExApi.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

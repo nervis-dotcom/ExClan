@@ -21,12 +21,11 @@ public class KickArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clan = clanManager.getClan(uuid);
         if (!clan.isManager(uuid)) {
             sender.sendMessage("%prefix% &cNo eres líder del clan.");
             return;
@@ -53,9 +52,10 @@ public class KickArgument implements CommandArgument {
         }
 
         clan.removeMember(playerName.getUniqueId());
-        for (var member : clan.getOnlineAll()) {
+
+        clan.getOnlineAll().forEach(member -> {
             utilsManagers.sendMessage(member, "%prefix% &aEl jugador: " + playerName.getName() + " ha sido expulsado del clan por " + sender.getName() + ".");
-        }
+        });
     }
 
     @Override

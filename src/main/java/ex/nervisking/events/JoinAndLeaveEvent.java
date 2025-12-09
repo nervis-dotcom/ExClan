@@ -22,21 +22,27 @@ public class JoinAndLeaveEvent extends Event<ExClan> {
         Player player = event.getPlayer();
         Clan clan = clanManager.getClan(player.getUniqueId());
         if (clan != null) {
-            for (var member : clan.getOnlineAll()) {
-                if (!member.equals(player)) {
-                    sendMessage(member, "");
-                }
+            if (clan.isLader(player.getUniqueId()) && !clan.getLeaderName().equals(player.getName())) {
+                clan.upateName(player.getName());
             }
+            clan.getOnlineAll().forEach(member -> {
+                if (!member.equals(player)) {
+                    sendMessage(member, "%prefix% &aTu compañero de equipo: " + player.getName() + " ha ingresado al servidor.");
+                }
+            });
         }
     }
 
     @EventHandler
     public void onPlayerLeave(PlayerQuitEvent event) {
-        Clan clan = clanManager.getClan(event.getPlayer().getUniqueId());
+        Player player = event.getPlayer();
+        Clan clan = clanManager.getClan(player.getUniqueId());
         if (clan != null) {
-            for (var member : clan.getOnlineAll()) {
-                sendMessage(member, "");
-            }
+            clan.getOnlineAll().forEach(member -> {
+                if (!member.equals(player)) {
+                    sendMessage(member, "%prefix% &aTu compañero de equipo: " + player.getName() + " ha salido del servidor.");
+                }
+            });
         }
     }
 }

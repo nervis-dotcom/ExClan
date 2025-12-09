@@ -7,24 +7,26 @@ import ex.nervisking.ExClan;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
-public class RequestInvite extends Service<ExClan> {
+public class AllysInvite extends Service<ExClan> {
 
     private final List<Request> invites;
     private Task taskRemoveInvite;
 
-    public RequestInvite() {
+    public AllysInvite() {
         this.invites = new ArrayList<>();
         this.start();
     }
 
-    public void addInvite(String clanName, UUID sender, UUID receiver) {
-        this.invites.add(new Request(clanName, sender, receiver, System.currentTimeMillis() + 60000)); // 1 minuto
+    public void addInvite(String clanName, String receiver, UUID sender) {
+        this.invites.add(new Request(clanName, receiver, sender, System.currentTimeMillis() + 60000)); // 1 minuto
         this.start();
     }
 
-    public Request getInvite(String clanName, UUID receiver) {
+    public Request getInvite(String clanName, String receiver) {
         for (var request : invites) {
             if (request.clanName.equalsIgnoreCase(clanName) && request.receiver.equals(receiver)) {
                 return request;
@@ -33,7 +35,7 @@ public class RequestInvite extends Service<ExClan> {
         return null;
     }
 
-    public List<String> getInvite(UUID receiver) {
+    public List<String> getInvite(String receiver) {
         List<String> clanNames = new ArrayList<>();
         for (var request : invites) {
             if (request.receiver.equals(receiver)) {
@@ -43,11 +45,11 @@ public class RequestInvite extends Service<ExClan> {
         return clanNames;
     }
 
-    public boolean hasInvite(String clanName, UUID receiver) {
+    public boolean hasInvite(String clanName, String receiver) {
         return getInvite(clanName, receiver) != null;
     }
 
-    public void removeInvite(String clanName, UUID receiver) {
+    public void removeInvite(String clanName, String receiver) {
         this.invites.removeIf(request -> request.clanName.equalsIgnoreCase(clanName) && request.receiver.equals(receiver));
     }
 
@@ -66,17 +68,13 @@ public class RequestInvite extends Service<ExClan> {
                         sendMessage(request, "%prefix% &cTu invitación ha expirado.");
                     }
 
-                    Player receiver = Bukkit.getPlayer(invites.receiver());
-                    if (receiver != null && receiver.isOnline()) {
-                        sendMessage(receiver, "%prefix% &cTu invitación ha expirado.");
-                    }
                     this.invites.remove(invites);
                 }
             }
         }, 0, 20);
     }
 
-    public record Request(String clanName, UUID sender, UUID receiver, long expirationTime) {
+    public record Request(String clanName, String receiver, UUID sender, long expirationTime) {
         public boolean isExpired() {
             return System.currentTimeMillis() > expirationTime;
         }

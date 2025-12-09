@@ -1,51 +1,59 @@
 package ex.nervisking.commands.clanArguments;
 
-import ex.api.base.command.Arguments;
-import ex.api.base.command.CommandArg;
-import ex.api.base.command.CommandArgument;
-import ex.api.base.command.Sender;
-import ex.api.base.model.CustomColor;
-import ex.api.base.utils.DiscordWebhooks;
+import ex.api.base.command.*;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
-import ex.nervisking.models.Clan;
+import ex.nervisking.manager.ChatManager;
+import ex.nervisking.models.Chat;
 
 import java.util.UUID;
 
 @CommandArg(name = "chat", description = "enviar mensaje a todo los del clan.", permission = true)
 public class ChatArgument implements CommandArgument {
 
-    public final ClanManager clanManager;
+    private final ChatManager chatManager;
+    private final ClanManager clanManager;
 
     public ChatArgument(ExClan plugin) {
         this.clanManager = plugin.getClanManager();
+        this.chatManager = plugin.getChatManager();
     }
 
     @Override
     public void execute(Sender sender, Arguments args) {
+        if (args.isEmpty()) {
+            sender.help("Usa /clan chat <CLAN/ALLY/OFF>");
+            return;
+        }
         UUID uuid = sender.getUniqueId();
         if (!clanManager.isInClan(uuid)) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
 
-        Clan clan = clanManager.getClan(uuid);
-        String message = args.join(0);
+        switch (args.get(0).toUpperCase()) {
+            case "CLAN" -> {
+                chatManager.setChat(uuid, Chat.CLAN);
+                sender.sendMessage("%prefix% &aHas entrado al chat del clan.");
+            }
+            case "ALLY" -> {
+                chatManager.setChat(uuid, Chat.ALLY);
+                sender.sendMessage("%prefix% &aHas entrado al chat de los allies.");
+            }
+            case "OFF" -> {
+                chatManager.removeChat(uuid);
+                sender.sendMessage("%prefix% &aHas salido al chat global.");
+            }
+            default -> sender.help("Usa /clan chat <CLAN/ALLY/OFF>");
+        }
+    }
 
-        for (var player: clan.getOnlineAll()) {
-            utilsManagers.sendMessage(player, "&7[" + clan.getClanTag() + "&7] &b" + sender.getName() + " &8-> &f" + message);
+    @Override
+    public Completions tab(Sender sender, Arguments args, Completions completions) {
+        if (args.has(1)) {
+            completions.add("CLAN", "ALLY", "OFF");
         }
 
-        if (clan.getDiscordWebhooks() != null) {
-            DiscordWebhooks
-                    .of(clan.getDiscordWebhooks())
-                    .setBotName(clan.getClanName())
-                    .setTitle("message")
-                    .setColor(CustomColor.PURE_RANDOM)
-                    .setDescription(message)
-                    .setAvatarByPlayer(sender.getName())
-                    .hideError()
-                    .sendAsync();
-        }
+        return completions;
     }
 }

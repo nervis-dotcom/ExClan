@@ -23,12 +23,11 @@ public class InviteArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clan = clanManager.getClan(uuid);
         if (!clan.isManager(uuid)) {
             sender.sendMessage("%prefix% &cNo eres líder del clan.");
             return;

@@ -3,39 +3,44 @@ package ex.nervisking.models;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 public class Clan {
 
-    private String leaderName;
-    private UUID laderUuid;
+    private Lader lader;
     private final String clanName;
     private final List<Member> members;
     private final Set<UUID> bannedMembers;
+    private final Set<String> allys;
+    private final Map<Rank, Symbols> symbols;
     private String clanTag;
     private int points;
     private String description;
-    private String discordWebhooks;
+    private String discord;
+    private boolean pvp;
+    private boolean pvpAlly;
 
-    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, int points, String description, String discordWebhooks) {
+    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, int points, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols) {
         this.clanName = clanName;
-        this.leaderName = leaderName;
-        this.laderUuid = laderUuid;
+        this.lader = new Lader(laderUuid, leaderName);
         this.members = members;
         this.bannedMembers = bannedMembers;
+        this.allys = allys;
         this.clanTag = clanTag;
         this.points = points;
         this.description = description;
-        this.discordWebhooks = discordWebhooks;
+        this.discord = discord;
+        this.pvp = pvp;
+        this.pvpAlly = pvpAlly;
+        this.symbols = symbols;
+    }
 
+    public Clan(String clanName, String leaderName, UUID laderUuid) {
+        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), 0, "", null, true, true, Rank.getSymbols());
     }
 
     public void setDelegate(UUID uuid, String name) {
-        this.leaderName = name;
-        this.laderUuid = uuid;
+        this.lader = new Lader(uuid, name);
         this.removeMember(uuid);
         this.addMember(uuid, Rank.SUB_LEADER);
     }
@@ -53,20 +58,35 @@ public class Clan {
     }
 
     public String getLeaderName() {
-        return leaderName;
+        return lader.getName();
     }
 
-
     public UUID getLaderUuid() {
-        return laderUuid;
+        return lader.getUuid();
+    }
+
+    public void upateName(String name) {
+        this.lader.setName(name);
     }
 
     public boolean isLader(UUID uuid) {
-        return this.laderUuid.equals(uuid);
+        return this.lader.getUuid().equals(uuid);
     }
 
     public boolean isManager(UUID uuid) {
         return this.isLader(uuid) || this.hasMemberSubLider(uuid);
+    }
+
+    public boolean isManagerOnline() {
+        if (lader.isOnline()) {
+            return true;
+        }
+        for (var member : this.members) {
+            if (member.isOnline()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public int getPoints() {
@@ -85,6 +105,20 @@ public class Clan {
         return members;
     }
 
+    public Member getMember(UUID uuid) {
+        Member rank = null;
+        if (this.isLader(uuid)) {
+            return lader;
+        }
+        for (var member : this.members) {
+            if (member.getUuid().equals(uuid)) {
+                rank = member;
+                break;
+            }
+        }
+        return rank;
+    }
+
     public Set<UUID> getBannedMembers() {
         return bannedMembers;
     }
@@ -97,8 +131,8 @@ public class Clan {
         this.bannedMembers.add(member);
     }
 
-    public void addMember(Member member) {
-        this.members.add(member);
+    public void unbanMember(UUID member) {
+        this.bannedMembers.remove(member);
     }
 
     public void setMemberRank(UUID member, Rank rank) {
@@ -126,7 +160,14 @@ public class Clan {
     }
 
     public Rank getMemberRank(UUID uuid) {
-        return this.members.stream().filter(m -> m.getUuid().equals(uuid)).findFirst().map(Member::getRank).orElse(Rank.MEMBER);
+        Rank rank = null;
+        for (Member member : this.members) {
+            if (member.getUuid().equals(uuid)) {
+                rank = member.getRank();
+                break;
+            }
+        }
+        return rank;
     }
 
     public String getDescription() {
@@ -137,7 +178,7 @@ public class Clan {
         this.description = description;
     }
 
-    public List<Player> getOnlineAll() {
+    public Collection<? extends Player> getOnlineAll() {
         List<Player> members = new ArrayList<>();
         for (var member : this.members) {
             Player player = member.getPlayer();
@@ -145,23 +186,74 @@ public class Clan {
                 members.add(player);
             }
         }
-        Player player = Bukkit.getPlayer(this.laderUuid);
+        Player player = Bukkit.getPlayer(this.lader.getUuid());
         if (player != null && player.isOnline()) {
             members.add(player);
         }
         return members;
     }
 
-    public String getDiscordWebhooks() {
-        return discordWebhooks;
+    public String getDiscord() {
+        return discord;
     }
 
-    public void setDiscordWebhooks(String discordWebhooks) {
-        this.discordWebhooks = discordWebhooks;
+    public void setDiscord(String discord) {
+        this.discord = discord;
     }
 
+    public boolean hasDiscord() {
+        return this.discord != null;
+    }
+
+    public void setPvp(boolean pvp) {
+        this.pvp = pvp;
+    }
 
     public boolean isPvp() {
-        return false;
+        return pvp;
+    }
+
+    public Set<String> getAllys() {
+        return allys;
+    }
+
+    public void addAlly(String ally) {
+        this.allys.add(ally);
+    }
+
+    public void removeAlly(String ally) {
+        this.allys.remove(ally);
+    }
+
+    public boolean isAlly(String ally) {
+        return this.allys.contains(ally);
+    }
+
+    public boolean isPvpAlly() {
+        return pvpAlly;
+    }
+
+    public void setPvpAlly(boolean pvpAlly) {
+        this.pvpAlly = pvpAlly;
+    }
+
+    public Map<Rank, Symbols> getSymbols() {
+        return symbols;
+    }
+
+    public void setSymbols(Rank rank, Symbols symbol) {
+        this.symbols.put(rank, symbol);
+    }
+
+    public Symbols getSymbol(UUID uuid) {
+        if (isLader(uuid)) {
+            return symbols.get(Rank.LEADER);
+        }
+        for (var member : this.members) {
+            if (member.getUuid().equals(uuid)) {
+                return symbols.get(member.getRank());
+            }
+        }
+        return null;
     }
 }

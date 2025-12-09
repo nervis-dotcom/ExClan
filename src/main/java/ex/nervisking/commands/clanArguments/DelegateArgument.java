@@ -25,12 +25,11 @@ public class DelegateArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clan = clanManager.getClan(uuid);
         if (!clan.isLader(uuid)) {
             sender.sendMessage("%prefix% &cNo eres el líder del clan.");
             return;
@@ -54,13 +53,14 @@ public class DelegateArgument implements CommandArgument {
 
         clan.setDelegate(offlinePlayer.getUniqueId(), offlinePlayer.getName());
         sender.sendMessage("%prefix% &aDelegado a: " + offlinePlayer.getName() + " tu haz quedado como sub líder.");
-        for (var player: clan.getOnlineAll()) {
-            utilsManagers.sendMessage(player, "%prefix% &aEl clan tiene un nuevo líder: " + offlinePlayer.getName() + ".");
-        }
 
-        if (clan.getDiscordWebhooks() != null) {
+        clan.getOnlineAll().forEach(player -> {
+            utilsManagers.sendMessage(player, "%prefix% &aEl clan tiene un nuevo líder: " + offlinePlayer.getName() + ".");
+        });
+
+        if (clan.getDiscord() != null) {
             DiscordWebhooks
-                    .of(clan.getDiscordWebhooks())
+                    .of(clan.getDiscord())
                     .setBotName(clan.getClanName())
                     .setTitle("announcement")
                     .setColor(CustomColor.YELLOW)

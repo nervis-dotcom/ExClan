@@ -20,12 +20,11 @@ public class WebhooksArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        Clan clanName = clanManager.getClan(uuid);
+        if (clanName == null) {
             sender.sendMessage("%prefix% &cNo estás en un clan.");
             return;
         }
-
-        Clan clanName = clanManager.getClan(uuid);
         if (!clanName.isManager(uuid)) {
             sender.sendMessage("%prefix% &cNo eres líder del clan.");
             return;
@@ -48,16 +47,16 @@ public class WebhooksArgument implements CommandArgument {
                     sender.sendMessage("%prefix% &cEl link no es valido.");
                     return;
                 }
-                clanName.setDiscordWebhooks(link);
+                clanName.setDiscord(link);
                 sender.sendMessage("%prefix% &aLink agregado correctamente.");
             }
             case "remove" -> {
-                clanName.setDiscordWebhooks(null);
+                clanName.setDiscord(null);
                 sender.sendMessage("%prefix% &aLink removido correctamente.");
             }
 
             case "get" -> {
-                String link = clanName.getDiscordWebhooks();
+                String link = clanName.getDiscord();
                 if (link == null) {
                     sender.sendMessage("%prefix% &cNo hay link agregado.");
                 } else {

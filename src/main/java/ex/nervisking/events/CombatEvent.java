@@ -28,19 +28,40 @@ public class CombatEvent extends Event<ExClan> {
         Clan clan = clanManager.getClan(damaged.getUniqueId());
         if (clan == null) return;
 
-        switch (event.getDamager()) {
-            case Player player when !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId()) && !clan.isPvp() -> event.setCancelled(true); // Cuerpo a cuerpo
-            case ThrownPotion potion -> { // Daño por pociones
-                if (potion.getShooter() instanceof Player player && !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId()) && !clan.isPvp()) {
-                    event.setCancelled(true);
+
+        if (clan.isPvpAlly()) {
+            switch (event.getDamager()) {
+                case Player player when !damaged.equals(player) && clanManager.hasAllyPlayer(clan, player.getUniqueId()) -> event.setCancelled(true); // Cuerpo a cuerpo
+                case ThrownPotion potion -> { // Daño por pociones
+                    if (potion.getShooter() instanceof Player player && !damaged.equals(player) && clanManager.hasAllyPlayer(clan, player.getUniqueId())) {
+                        event.setCancelled(true);
+                    }
                 }
-            }
-            case Projectile projectile -> { // Daño por proyectiles
-                if (projectile.getShooter() instanceof Player player && !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId()) && !clan.isPvp()) {
-                    event.setCancelled(true);
+                case Projectile projectile -> { // Daño por proyectiles
+                    if (projectile.getShooter() instanceof Player player && !damaged.equals(player) && clanManager.hasAllyPlayer(clan, player.getUniqueId())) {
+                        event.setCancelled(true);
+                    }
                 }
+                default -> {}
             }
-            default -> {}
+            return;
+        }
+
+        if (clan.isPvp()) {
+            switch (event.getDamager()) {
+                case Player player when !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId()) -> event.setCancelled(true); // Cuerpo a cuerpo
+                case ThrownPotion potion -> { // Daño por pociones
+                    if (potion.getShooter() instanceof Player player && !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId())) {
+                        event.setCancelled(true);
+                    }
+                }
+                case Projectile projectile -> { // Daño por proyectiles
+                    if (projectile.getShooter() instanceof Player player && !damaged.equals(player) && clan.hasMemberOf(player.getUniqueId())) {
+                        event.setCancelled(true);
+                    }
+                }
+                default -> {}
+            }
         }
     }
 

@@ -5,8 +5,6 @@ import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 
-import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.UUID;
 
 @CommandArg(name = "create", description = "Crea un clan nuevo.", permission = true)
@@ -43,7 +41,7 @@ public class CreateArgument implements CommandArgument {
         }
 
         sender.sendMessage("%prefix% &a¡Clan '" + clanName + "' creado con éxito!");
-        clanManager.addClan(clanName, new Clan(clanName, clanName, sender.getName(), uuid, new ArrayList<>(), new HashSet<>(), 0, "", null));
+        clanManager.addClan(clanName, new Clan(clanName, sender.getName(), uuid));
         utilsManagers.sendBroadcastMessage("&bSe a creado un nuevo clan '" + clanName + "'");
     }
 

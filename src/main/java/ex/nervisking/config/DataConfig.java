@@ -1,12 +1,12 @@
 package ex.nervisking.config;
 
 import ex.api.base.annotations.KeyAlphaNum;
-import ex.api.base.config.CustomConfig;
 import ex.api.base.config.FolderConfig;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Member;
 import ex.nervisking.models.Rank;
+import ex.nervisking.models.Symbols;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 
@@ -21,7 +21,7 @@ public class DataConfig extends FolderConfig<ExClan> {
 
     @Override
     public void loadConfigs() {
-        for (CustomConfig configFile : configFiles) {
+        for (var  configFile : configFiles) {
             FileConfiguration config = configFile.getConfig();
 
             String clanPath = "data";
@@ -33,7 +33,8 @@ public class DataConfig extends FolderConfig<ExClan> {
                 int points = config.getInt(clanPath + ".points", 0);
                 String description = config.getString(clanPath + ".description", "");
                 String discordWebhooks = config.getString(clanPath + ".discord-webhooks");
-
+                boolean pvp = config.getBoolean(clanPath + ".pvp");
+                boolean pvpAlly = config.getBoolean(clanPath + ".pvp-ally");
 
                 // 🔹 Miembros
                 List<Member> members = new ArrayList<>();
@@ -62,8 +63,28 @@ public class DataConfig extends FolderConfig<ExClan> {
                     }
                 }
 
+                Set<String> allys = new HashSet<>();
+                if (config.isList(clanPath + ".allys")) {
+                    allys.addAll(config.getStringList(clanPath + ".allys"));
+                }
+
+                Map<Rank, Symbols> symbols = new HashMap<>();
+                ConfigurationSection symbolsSection = config.getConfigurationSection(clanPath + ".symbols");
+                if (symbolsSection != null) {
+                    for (String key : symbolsSection.getKeys(false)) {
+                        try {
+                            Rank rank = Rank.fromString(key.toUpperCase());
+                            Symbols symbol = Symbols.fromString(symbolsSection.getString(key));
+                            if (symbol == null) continue;
+                            symbols.put(rank, symbol);
+                        } catch (IllegalArgumentException e) {
+                            logger.warn("Invalid rank format for symbol: " + key);
+                        }
+                    }
+                }
+
                 // 🔹 Crear clan
-                plugin.getClanManager().addClan(clanId, new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, points, description, discordWebhooks));
+                plugin.getClanManager().addClan(clanId, new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, points, description, discordWebhooks, pvp, pvpAlly, symbols));
             }
         }
     }
@@ -71,16 +92,9 @@ public class DataConfig extends FolderConfig<ExClan> {
 
     @Override
     public void saveConfigs() {
-        for (Map.Entry<String, Clan> entry : plugin.getClanManager().getClanData().entrySet()) {
-            String clanId = entry.getKey();
-            Clan clan = entry.getValue();
-            String pathName = clanId + ".yml";
+        for (var clan : plugin.getClanManager().getClanData().values()) {
 
-            // 🔹 Crear o cargar el archivo
-            CustomConfig customConfig = getConfigFile(pathName);
-            if (customConfig == null) {
-                customConfig = registerConfigFile(pathName);
-            }
+            var customConfig = getConfigFileOrCreate(clan.getClanName());
             FileConfiguration config = customConfig.getConfig();
 
             // 🔹 Resetear sección
@@ -93,7 +107,7 @@ public class DataConfig extends FolderConfig<ExClan> {
             config.set(clanPath + "leader-uuid", clan.getLaderUuid().toString());
             config.set(clanPath + "points", clan.getPoints());
             config.set(clanPath + "description", clan.getDescription());
-            config.set(clanPath + "discord-webhooks", clan.getDiscordWebhooks());
+            config.set(clanPath + "discord-webhooks", clan.getDiscord());
 
             // 🔹 Miembros
             if (clan.getMembers() != null && !clan.getMembers().isEmpty()) {
@@ -109,8 +123,19 @@ public class DataConfig extends FolderConfig<ExClan> {
             if (clan.getBannedMembers() != null && !clan.getBannedMembers().isEmpty()) {
                 List<String> bannedList = clan.getBannedMembers().stream().filter(Objects::nonNull).map(UUID::toString).toList();
                 config.set(clanPath + "banned-members", new ArrayList<>(bannedList));
-            } else {
-                config.set(clanPath + "banned-members", new ArrayList<>());
+            }
+
+            // 🔹 Allies
+            if (clan.getAllys() != null && !clan.getAllys().isEmpty()) {
+                List<String> allyList = clan.getAllys().stream().filter(Objects::nonNull).toList();
+                config.set(clanPath + "allys", new ArrayList<>(allyList));
+            }
+
+            // 🔹 Símbolos
+            if (clan.getSymbols() != null && !clan.getSymbols().isEmpty()) {
+                for (var entry : clan.getSymbols().entrySet()) {
+                    config.set(clanPath + "symbols." + entry.getKey().name(), entry.getValue().name());
+                }
             }
         }
 
