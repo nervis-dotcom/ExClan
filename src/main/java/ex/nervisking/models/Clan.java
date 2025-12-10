@@ -2,6 +2,7 @@ package ex.nervisking.models;
 
 import ex.api.base.gui.Row;
 import ex.api.base.gui.trunk.VirtualChest;
+import ex.api.base.model.Coordinate;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -17,6 +18,7 @@ public class Clan {
     private final Set<UUID> bannedMembers;
     private final Set<String> allys;
     private final Map<Rank, Symbols> symbols;
+    private final List<Homes> homes;
     private final VirtualChest chest;
     private String clanTag;
     private int points;
@@ -24,15 +26,17 @@ public class Clan {
     private final AtomicLong bank = new AtomicLong(0);
     private String description;
     private String discord;
+    private ItemStack icon;
     private boolean pvp;
     private boolean pvpAlly;
 
-    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, int points, int kills, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols, Map<Integer, ItemStack> chestItems) {
+    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, List<Homes> homes, int points, int kills, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols, Map<Integer, ItemStack> chestItems, ItemStack icon) {
         this.clanName = clanName;
         this.lader = new Lader(laderUuid, leaderName);
         this.members = members;
         this.bannedMembers = bannedMembers;
         this.allys = allys;
+        this.homes = homes;
         this.clanTag = clanTag;
         this.points = points;
         this.kills = kills;
@@ -42,10 +46,11 @@ public class Clan {
         this.pvpAlly = pvpAlly;
         this.symbols = symbols;
         this.chest = VirtualChest.of("Clan Chest", Row.CHESTS_54, new HashMap<>(chestItems));
+        this.icon = icon;
     }
 
     public Clan(String clanName, String leaderName, UUID laderUuid) {
-        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), 0, 0, "", null, true, true, Rank.getSymbols(), new HashMap<>());
+        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), new ArrayList<>(), 0, 0, "", null, true, true, Rank.getSymbols(), new HashMap<>(), null);
     }
 
     public void setDelegate(UUID uuid, String name) {
@@ -120,10 +125,6 @@ public class Clan {
 
     public void addKills(int kills) {
         this.kills += kills;
-    }
-
-    public void removeKills(int amount) {
-        this.kills = Math.max(0, this.kills - amount); // evitar negativos
     }
 
     public List<Member> getMembers() {
@@ -345,5 +346,38 @@ public class Clan {
     private long toCents(double amount) {
         if (amount <= 0) return 0;
         return Math.round(amount * 100.0); // redondeo seguro
+    }
+
+    public ItemStack getIcon() {
+        return icon;
+    }
+
+    public void setIcon(ItemStack icon) {
+        this.icon = icon;
+    }
+
+    public boolean hasIcon() {
+        return this.icon != null;
+    }
+
+    public void addHome(String name, Coordinate coordinate) {
+        this.homes.add(new Homes(name, "FIREWORK_STAR", coordinate));
+    }
+
+    public void removeHome(Homes home) {
+        this.homes.remove(home);
+    }
+
+    public List<Homes> getHomes() {
+        return homes;
+    }
+
+    public Homes getHome(String s) {
+        for (Homes h : homes) {
+            if (h.getName().equals(s)) {
+                return h;
+            }
+        }
+        return null;
     }
 }

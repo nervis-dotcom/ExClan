@@ -2,11 +2,9 @@ package ex.nervisking.config;
 
 import ex.api.base.annotations.KeyAlphaNum;
 import ex.api.base.config.FolderConfig;
+import ex.api.base.model.Coordinate;
 import ex.nervisking.ExClan;
-import ex.nervisking.models.Clan;
-import ex.nervisking.models.Member;
-import ex.nervisking.models.Rank;
-import ex.nervisking.models.Symbols;
+import ex.nervisking.models.*;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -100,7 +98,26 @@ public class DataConfig extends FolderConfig<ExClan> {
                         }
                     }
                 }
-                Clan clan = new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems);
+
+                List<Homes> homes = new ArrayList<>();
+                ConfigurationSection homesSection = config.getConfigurationSection(clanPath + ".homes");
+                if (homesSection != null) {
+                    for (String key : homesSection.getKeys(false)) {
+                        String icon = homesSection.getString(key + ".icon");
+                        String world = homesSection.getString(key + ".location.world");
+                        double x = homesSection.getDouble(key + ".location.x");
+                        double y = homesSection.getDouble(key + ".location.y");
+                        double z = homesSection.getDouble(key + ".location.z");
+                        float yaw = homesSection.getInt(key + ".location.yaw");
+                        float pitch = homesSection.getInt(key + ".location.pitch");
+                        homes.add(new Homes(key, icon, Coordinate.of(world, x, y, z, yaw, pitch)));
+                    }
+                }
+
+                ItemStack icon = config.getItemStack(clanPath + ".icon");
+
+                // 🔹 Crear clan
+                Clan clan = new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, homes, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems, icon);
 
                 clan.setBank(config.getLong(clanPath + ".bank", 0));
                 // 🔹 Crear clan
@@ -131,6 +148,7 @@ public class DataConfig extends FolderConfig<ExClan> {
             config.set(clanPath + "discord-webhooks", clan.getDiscord());
             config.set(clanPath + "pvp", clan.isPvp());
             config.set(clanPath + "pvp-ally", clan.isPvpAlly());
+            config.set(clanPath + "icon", clan.getIcon());
 
             // 🔹 Miembros
             if (clan.getMembers() != null && !clan.getMembers().isEmpty()) {
@@ -158,6 +176,22 @@ public class DataConfig extends FolderConfig<ExClan> {
             if (clan.getSymbols() != null && !clan.getSymbols().isEmpty()) {
                 for (var entry : clan.getSymbols().entrySet()) {
                     config.set(clanPath + "symbols." + entry.getKey().name(), entry.getValue().name());
+                }
+            }
+
+            ConfigurationSection homesSection = config.createSection(clanPath + ".homes");
+            List<Homes> homes = clan.getHomes();
+            if (homes != null && !homes.isEmpty()) {
+                for (Homes home : homes) {
+                    homesSection.set(home.getName() + ".icon", home.getIcon());
+                    ConfigurationSection locSec = homesSection.createSection(home.getName() + ".location");
+                    Coordinate loc = home.getCoordinate();
+                    locSec.set("world", loc.world());
+                    locSec.set("x", loc.x());
+                    locSec.set("y", loc.y());
+                    locSec.set("z", loc.z());
+                    locSec.set("yaw", loc.yaw());
+                    locSec.set("pitch", loc.pitch());
                 }
             }
 

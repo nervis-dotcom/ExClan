@@ -1,6 +1,7 @@
 package ex.nervisking.hook;
 
 import ex.api.base.hook.PlaceholderApiHook;
+import ex.api.base.placeholder.Identifier;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
@@ -63,17 +64,17 @@ public class Papi extends PlaceholderApiHook {
 
                     case "top-kills" -> {
                         int pos = clanManager.getClanKillsPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     case "top-points" -> {
                         int pos = clanManager.getClanPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     case "top-bank" -> {
                         int pos = clanManager.getClanBankPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     default -> identifier.nulL();
@@ -148,17 +149,17 @@ public class Papi extends PlaceholderApiHook {
 
                     case "top-kills" -> {
                         int pos = clanManager.getClanKillsPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     case "top-points" -> {
                         int pos = clanManager.getClanPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     case "top-bank" -> {
                         int pos = clanManager.getClanBankPosition(clan.getClanName());
-                        yield pos == -1 ? identifier.enty() : identifier.set(pos);
+                        yield pos == -1 ? identifier.empty() : identifier.set(pos);
                     }
 
                     default -> identifier.nulL();
@@ -177,15 +178,15 @@ public class Papi extends PlaceholderApiHook {
                     return switch (arg) {
                         case "points" -> {
                             var pos = clanManager.getClanByPosition(position);
-                            yield pos == null ? identifier.enty() : identifier.set(pos.getClanName());
+                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
                         }
                         case "kills" -> {
                             var pos = clanManager.getClanByKillsPosition(position);
-                            yield pos == null ? identifier.enty() : identifier.set(pos.getClanName());
+                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
                         }
                         case "bank" -> {
                             var pos = clanManager.getClanByBankPosition(position);
-                            yield pos == null ? identifier.enty() : identifier.set(pos.getClanName());
+                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
                         }
                         default -> identifier.NT();
                     };
