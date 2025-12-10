@@ -57,10 +57,44 @@ public class Papi extends PlaceholderApiHook {
                     case "tag" -> identifier.set(clan.getClanTag());
                     case "discord" -> identifier.set(clan.getDiscord());
                     case "rank" -> identifier.set(clan.getMemberRank(player.getUniqueId()).name());
+                    case "description" -> identifier.set(clan.getDescription());
+
+                    case "leader" -> identifier.set(clan.getLeaderName());
+                    case "leader-uuid" -> identifier.set(clan.getLaderUuid().toString());
+
+                    case "members-amount" -> identifier.set(clan.getMembers().size());
+                    case "allys-amount" -> identifier.set(clan.getAllys().size());
+                    case "banned-amount" -> identifier.set(clan.getBannedMembers().size());
+
+                    case "members" -> {
+                        StringBuilder sb = new StringBuilder();
+                        clan.getMembers().forEach(m -> sb.append(m.getName()).append(", "));
+                        yield identifier.set(sb.toString());
+                    }
+
+                    case "allys" -> {
+                        StringBuilder sb = new StringBuilder();
+                        clan.getAllys().forEach(a -> sb.append(a).append(", "));
+                        yield identifier.set(sb.toString());
+                    }
+
+                    case "banned" -> {
+                        StringBuilder sb = new StringBuilder();
+                        for (var uuid : clan.getBannedMembers()) {
+                            OfflinePlayer op = Bukkit.getOfflinePlayer(uuid);
+                            if (op.hasPlayedBefore()) {
+                                sb.append(op.getName()).append(", ");
+                            }
+                        }
+                        yield identifier.set(sb.toString());
+                    }
 
                     case "points" -> identifier.set(clan.getPoints());
                     case "kills" -> identifier.set(clan.getKills());
                     case "bank" -> identifier.set(clan.getBankDouble());
+
+                    case "pvp" -> identifier.set(clan.isPvp());
+                    case "pvp-ally" -> identifier.set(clan.isPvpAlly());
 
                     case "top-kills" -> {
                         int pos = clanManager.getClanKillsPosition(clan.getClanName());
@@ -166,9 +200,7 @@ public class Papi extends PlaceholderApiHook {
                 };
             }
 
-            // ============================================================
-            // TOP PLACEHOLDERS
-            // ============================================================
+            // %exclan_top_[type]_[name/position]%
             case "top" -> {
 
                 if (arg == null || extra == null) return identifier.nulL();
