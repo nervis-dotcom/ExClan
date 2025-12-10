@@ -33,11 +33,12 @@ public class ChatEvent extends Event<ExClan> {
         if (chat == null) {
             return;
         }
-        if (!clanManager.isInClan(uuid)) {
+
+        Clan clan = clanManager.getClan(uuid);
+        if (clan == null) {
             return;
         }
 
-        Clan clan = clanManager.getClan(uuid);
         String message = event.signedMessage().message();
 
         if (chat == Chat.CLAN) {
@@ -51,7 +52,6 @@ public class ChatEvent extends Event<ExClan> {
                         .setColor(CustomColor.PURE_RANDOM)
                         .setDescription(message)
                         .setAvatarByPlayer(player.getName())
-                        .hideError()
                         .sendAsync();
             }
             event.setCancelled(true);

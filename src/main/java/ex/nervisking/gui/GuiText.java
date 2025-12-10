@@ -9,7 +9,7 @@ import org.bukkit.entity.Player;
 
 import java.util.function.BiConsumer;
 
-public class GuiSymbols {
+public class GuiText {
 
     public static void open(Player player, BiConsumer<Boolean, Symbols> consumer) {
         Dialog dialog = Dialog.of(player)
@@ -24,7 +24,6 @@ public class GuiSymbols {
                         consumer.accept(true, symbols);
                     }
                 });
-
         for (var symbol : Symbols.getSymbols()) {
             dialog.addButton(ButtonSpec.of(CustomColor.PURE_RANDOM.getHex() + symbol.getSymbol(), symbol.getName()).setDescription("&f" + symbol.getName(), " ", "&7Click para elegir"));
         }

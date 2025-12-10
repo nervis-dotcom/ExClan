@@ -3,6 +3,7 @@ package ex.nervisking.events;
 import ex.api.base.event.Event;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
+import ex.nervisking.manager.WarManager;
 import ex.nervisking.models.Clan;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Projectile;
@@ -13,10 +14,12 @@ import org.bukkit.event.entity.PlayerDeathEvent;
 
 public class CombatEvent extends Event<ExClan> {
 
-    public final ClanManager clanManager;
+    private final ClanManager clanManager;
+    private final WarManager warManager;
 
     public CombatEvent() {
         this.clanManager = plugin.getClanManager();
+        this.warManager = plugin.getPointsWarManager();
     }
 
     @EventHandler
@@ -83,13 +86,17 @@ public class CombatEvent extends Event<ExClan> {
         // Configurable
         int pointsPerKill = 10;
         int pointsPerDeath = 5;
+        if (warManager.enabledPoint()) {
+            pointsPerKill = 20;
+            pointsPerDeath = 10;
+        }
 
         // Dar puntos al clan del killer
         killerClan.addPoints(pointsPerKill);
 
         // Quitar puntos al clan de la víctima
         victimClan.removePoints(pointsPerDeath);
-
+        victimClan.addKills(1);
 
         // Mensajes
         sendMessage(killer,"%prefix% &a¡Tu clan ganó +" + pointsPerKill + " puntos por matar a " + victim.getName() + "!");

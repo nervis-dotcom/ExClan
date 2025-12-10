@@ -42,6 +42,16 @@ public class PromoteArgument implements CommandArgument {
             return;
         }
 
+        if (sender.getUniqueId().equals(playerName.getUniqueId())) {
+            sender.sendMessage("%prefix% &cNo puedes promotearte a ti mismo.");
+            return;
+        }
+
+        if (clan.isLader(playerName.getUniqueId())) {
+            sender.sendMessage("%prefix% &cNo se le puede promotear al líder.");
+            return;
+        }
+
         if (!clan.hasMember(playerName.getUniqueId())) {
             sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
             return;

@@ -43,6 +43,16 @@ public class DemoteArgument implements CommandArgument {
             return;
         }
 
+        if (sender.getUniqueId().equals(playerName.getUniqueId())) {
+            sender.sendMessage("%prefix% &cNo puedes demotear a ti mismo.");
+            return;
+        }
+
+        if (clan.isLader(playerName.getUniqueId())) {
+            sender.sendMessage("%prefix% &cNo se le puede demotear al líder.");
+            return;
+        }
+
         if (!clan.hasMember(playerName.getUniqueId())) {
             sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
             return;

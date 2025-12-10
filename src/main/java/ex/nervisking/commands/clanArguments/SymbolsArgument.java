@@ -1,9 +1,11 @@
 package ex.nervisking.commands.clanArguments;
 
+import ex.api.base.Ex;
 import ex.api.base.command.*;
+import ex.api.base.model.ServerVersion;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
-import ex.nervisking.gui.GuiSymbols;
+import ex.nervisking.gui.GuiText;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;
 import ex.nervisking.models.Symbols;
@@ -23,6 +25,7 @@ public class SymbolsArgument implements CommandArgument {
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
             sender.help("Usa /clan symbols <rank> <symbol>");
+            return;
         }
 
         Rank rank = Rank.fromString(args.get(0));
@@ -53,14 +56,18 @@ public class SymbolsArgument implements CommandArgument {
             return;
         }
 
-        GuiSymbols.open(sender.asPlayer(), (result, symbol) -> {
-            if (result) {
-                clan.setSymbols(rank, symbol);
-                sender.sendMessage("%prefix% &aHas cambiado el símbolo al rango " + rank.getDisplayName() + " por el símbolo " + symbol.getSymbol() + ".");
-            } else {
-                sender.sendMessage("%prefix% &cHas cancelado la acción.");
-            }
-        });
+        if (Ex.serverVersionGreaterEqualThan(ServerVersion.v1_21_R4)) {
+            GuiText.open(sender.asPlayer(), (result, symbol) -> {
+                if (result) {
+                    clan.setSymbols(rank, symbol);
+                    sender.sendMessage("%prefix% &aHas cambiado el símbolo al rango " + rank.getDisplayName() + " por el símbolo " + symbol.getSymbol() + ".");
+                } else {
+                    sender.sendMessage("%prefix% &cHas cancelado la acción.");
+                }
+            });
+        } else {
+            sender.help("Usa /clan symbols <rank> <symbol>");
+        }
     }
 
     @Override

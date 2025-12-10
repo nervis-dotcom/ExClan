@@ -1,23 +1,25 @@
 package ex.nervisking.config;
 
-import ex.api.base.config.CustomConfig;
+import ex.api.base.config.ConfigInfo;
+import ex.api.base.config.Yaml;
 import org.bukkit.configuration.file.FileConfiguration;
 
-public class MainConfig {
+@ConfigInfo(name = "Config", register = false)
+public class MainConfig extends Yaml {
 
-    private final CustomConfig configFile;
+    private String prefix;
 
     public MainConfig(){
-        this.configFile = CustomConfig.of("Config");
-        this.loadConfig();
+        this.load();
     }
 
-    private void loadConfig() {
-        FileConfiguration config = configFile.getConfig();
+    @Override
+    protected void load() {
+        FileConfiguration config = customConfig.getConfig();
+        this.prefix = config.getString("prefix", "&#ff0000&lᴇ&#ff3000&lx&#ff6000&lᴄ&#ff8f00&lʟ&#ffbf00&lᴀ&#ffef00&lɴ");
     }
 
-    public void reloadConfig() {
-        configFile.reloadConfig();
-        loadConfig();
+    public String getPrefix() {
+        return prefix;
     }
 }

@@ -9,6 +9,7 @@ import ex.nervisking.models.Rank;
 import ex.nervisking.models.Symbols;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
 
@@ -21,16 +22,17 @@ public class DataConfig extends FolderConfig<ExClan> {
 
     @Override
     public void loadConfigs() {
-        for (var  configFile : configFiles) {
+        for (var configFile : configFiles) {
             FileConfiguration config = configFile.getConfig();
 
             String clanPath = "data";
             if (config.isConfigurationSection(clanPath)) {
-                String clanId = config.getString(clanPath + ".name");
+                String clanId = configFile.getFileName();
                 String clanTag = config.getString(clanPath + ".tag");
                 String leaderName = config.getString(clanPath + ".leader-name");
                 UUID leaderUuid = UUID.fromString(config.getString(clanPath + ".leader-uuid", ""));
                 int points = config.getInt(clanPath + ".points", 0);
+                int kills = config.getInt(clanPath + ".kills", 0);
                 String description = config.getString(clanPath + ".description", "");
                 String discordWebhooks = config.getString(clanPath + ".discord-webhooks");
                 boolean pvp = config.getBoolean(clanPath + ".pvp");
@@ -83,8 +85,26 @@ public class DataConfig extends FolderConfig<ExClan> {
                     }
                 }
 
+                Map<Integer, ItemStack> chestItems = new HashMap<>();
+                ConfigurationSection chestItemsSection = config.getConfigurationSection(clanPath + ".chest-items");
+                if (chestItemsSection != null) {
+                    for (String key : chestItemsSection.getKeys(false)) {
+                        try {
+                            int slot = Integer.parseInt(key);
+                            ItemStack item = chestItemsSection.getItemStack(key);
+                            if (item != null) {
+                                chestItems.put(slot, item);
+                            }
+                        } catch (NumberFormatException e) {
+                            logger.warn("Invalid slot format for chest item: " + key);
+                        }
+                    }
+                }
+                Clan clan = new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems);
+
+                clan.setBank(config.getLong(clanPath + ".bank", 0));
                 // 🔹 Crear clan
-                plugin.getClanManager().addClan(clanId, new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, points, description, discordWebhooks, pvp, pvpAlly, symbols));
+                plugin.getClanManager().addClan(clanId, clan);
             }
         }
     }
@@ -101,13 +121,16 @@ public class DataConfig extends FolderConfig<ExClan> {
             config.set("data", null);
 
             String clanPath = "data.";
-            config.set(clanPath + "name", clan.getClanName());
             config.set(clanPath + "tag", clan.getClanTag());
             config.set(clanPath + "leader-name", clan.getLeaderName());
             config.set(clanPath + "leader-uuid", clan.getLaderUuid().toString());
             config.set(clanPath + "points", clan.getPoints());
+            config.set(clanPath + "kills", clan.getKills());
+            config.set(clanPath + "bank", clan.getBank());
             config.set(clanPath + "description", clan.getDescription());
             config.set(clanPath + "discord-webhooks", clan.getDiscord());
+            config.set(clanPath + "pvp", clan.isPvp());
+            config.set(clanPath + "pvp-ally", clan.isPvpAlly());
 
             // 🔹 Miembros
             if (clan.getMembers() != null && !clan.getMembers().isEmpty()) {
@@ -135,6 +158,14 @@ public class DataConfig extends FolderConfig<ExClan> {
             if (clan.getSymbols() != null && !clan.getSymbols().isEmpty()) {
                 for (var entry : clan.getSymbols().entrySet()) {
                     config.set(clanPath + "symbols." + entry.getKey().name(), entry.getValue().name());
+                }
+            }
+
+            // 🔹 Chest
+            if (clan.getChest() != null) {
+                var chestItems = clan.getChest().getStorage();
+                for (var entry : chestItems.entrySet()) {
+                    config.set(clanPath + "chest-items." + entry.getKey(), entry.getValue());
                 }
             }
         }

@@ -1,9 +1,13 @@
 package ex.nervisking.models;
 
+import ex.api.base.gui.Row;
+import ex.api.base.gui.trunk.VirtualChest;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
 
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class Clan {
 
@@ -13,14 +17,17 @@ public class Clan {
     private final Set<UUID> bannedMembers;
     private final Set<String> allys;
     private final Map<Rank, Symbols> symbols;
+    private final VirtualChest chest;
     private String clanTag;
     private int points;
+    private int kills;
+    private final AtomicLong bank = new AtomicLong(0);
     private String description;
     private String discord;
     private boolean pvp;
     private boolean pvpAlly;
 
-    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, int points, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols) {
+    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, int points, int kills, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols, Map<Integer, ItemStack> chestItems) {
         this.clanName = clanName;
         this.lader = new Lader(laderUuid, leaderName);
         this.members = members;
@@ -28,15 +35,17 @@ public class Clan {
         this.allys = allys;
         this.clanTag = clanTag;
         this.points = points;
+        this.kills = kills;
         this.description = description;
         this.discord = discord;
         this.pvp = pvp;
         this.pvpAlly = pvpAlly;
         this.symbols = symbols;
+        this.chest = VirtualChest.of("Clan Chest", Row.CHESTS_54, new HashMap<>(chestItems));
     }
 
     public Clan(String clanName, String leaderName, UUID laderUuid) {
-        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), 0, "", null, true, true, Rank.getSymbols());
+        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), 0, 0, "", null, true, true, Rank.getSymbols(), new HashMap<>());
     }
 
     public void setDelegate(UUID uuid, String name) {
@@ -57,12 +66,16 @@ public class Clan {
         this.clanTag = clanTag;
     }
 
+    public Lader getLader() {
+        return lader;
+    }
+
     public String getLeaderName() {
-        return lader.getName();
+        return getLader().getName();
     }
 
     public UUID getLaderUuid() {
-        return lader.getUuid();
+        return getLader().getUuid();
     }
 
     public void upateName(String name) {
@@ -101,6 +114,18 @@ public class Clan {
         this.points = Math.max(0, this.points - amount); // evitar negativos
     }
 
+    public int getKills() {
+        return kills;
+    }
+
+    public void addKills(int kills) {
+        this.kills += kills;
+    }
+
+    public void removeKills(int amount) {
+        this.kills = Math.max(0, this.kills - amount); // evitar negativos
+    }
+
     public List<Member> getMembers() {
         return members;
     }
@@ -117,22 +142,6 @@ public class Clan {
             }
         }
         return rank;
-    }
-
-    public Set<UUID> getBannedMembers() {
-        return bannedMembers;
-    }
-
-    public boolean isBanned(UUID member) {
-        return this.bannedMembers.contains(member);
-    }
-
-    public void banMember(UUID member) {
-        this.bannedMembers.add(member);
-    }
-
-    public void unbanMember(UUID member) {
-        this.bannedMembers.remove(member);
     }
 
     public void setMemberRank(UUID member, Rank rank) {
@@ -168,6 +177,22 @@ public class Clan {
             }
         }
         return rank;
+    }
+
+    public Set<UUID> getBannedMembers() {
+        return bannedMembers;
+    }
+
+    public boolean isBanned(UUID member) {
+        return this.bannedMembers.contains(member);
+    }
+
+    public void banMember(UUID member) {
+        this.bannedMembers.add(member);
+    }
+
+    public void unbanMember(UUID member) {
+        this.bannedMembers.remove(member);
     }
 
     public String getDescription() {
@@ -255,5 +280,70 @@ public class Clan {
             }
         }
         return null;
+    }
+
+    public Symbols getSymbol(Rank rank) {
+        return symbols.get(rank);
+    }
+
+    public VirtualChest getChest() {
+        return chest;
+    }
+
+    /** Obtiene el banco en centavos */
+    public long getBank() {
+        return bank.get();
+    }
+
+    /** Obtiene el banco como double */
+    public double getBankDouble() {
+        return bank.get() / 100.0;
+    }
+
+    /** Set directo del banco en centavos (uso interno) */
+    public void setBank(long amount) {
+        bank.set(Math.max(amount, 0));
+    }
+
+    /** Depositar en centavos (seguro y atómico) */
+    public long deposit(long amountCents) {
+        if (amountCents <= 0) return bank.get();
+        return bank.addAndGet(amountCents);
+    }
+
+    /** Retirar en centavos (seguro y atómico) */
+    public long withdraw(long amountCents) {
+        if (amountCents <= 0) return bank.get();
+
+        long current, updated;
+
+        do {
+            current = bank.get();
+            if (current < amountCents) return current; // No hay suficiente
+
+            updated = current - amountCents;
+
+            // Intentar cambiar (compare-and-set)
+        } while (!bank.compareAndSet(current, updated));
+
+        return updated;
+    }
+
+    /** Depositar usando double */
+    public double depositDouble(double amount) {
+        long cents = toCents(amount);
+        return deposit(cents) / 100.0;
+    }
+
+    /** Retirar usando double */
+    public double withdrawDouble(double amount) {
+        long cents = toCents(amount);
+        return withdraw(cents) / 100.0;
+    }
+
+    /** Conversión segura */
+    private long toCents(double amount) {
+        if (amount <= 0) return 0;
+        return Math.round(amount * 100.0); // redondeo seguro
     }
 }

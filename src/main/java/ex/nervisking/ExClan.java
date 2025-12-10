@@ -3,11 +3,15 @@ package ex.nervisking;
 import ex.api.base.ExPlugin;
 import ex.api.base.data.MenuInfo;
 import ex.api.base.data.PluginInfo;
+import ex.api.base.hook.VaultHook;
 import ex.api.base.model.CustomColor;
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
 import ex.nervisking.events.ChatEvent;
+import ex.nervisking.hook.Papi;
+import ex.nervisking.manager.BankManager;
 import ex.nervisking.manager.ChatManager;
+import ex.nervisking.manager.WarManager;
 import ex.nervisking.manager.RequestInvite;
 import ex.nervisking.commands.ClanCommand;
 import ex.nervisking.commands.CommandMain;
@@ -23,10 +27,17 @@ public class ExClan extends ExPlugin {
     private DataConfig dataConfig;
 
     private Task saveDataTask;
+    private WarManager warManager;
 
     private ClanManager clanManager;
     private RequestInvite requestInvite;
     private ChatManager chatManager;
+    private BankManager bankManager;
+
+    @Override
+    public String setPrefix() {
+        return mainConfig.getPrefix();
+    }
 
     @Override
     protected void enable() {
@@ -46,6 +57,8 @@ public class ExClan extends ExPlugin {
                 .setStartColor(CustomColor.GRAY)
                 .setEndColor(CustomColor.GOLD);
 
+        VaultHook.setupEconomy();
+
         this.clanManager = new ClanManager();
 
         this.mainConfig = new MainConfig();
@@ -53,17 +66,22 @@ public class ExClan extends ExPlugin {
 
         this.requestInvite = new RequestInvite();
         this.chatManager = new ChatManager();
+        this.bankManager = new BankManager();
+        this.warManager = new WarManager();
 
         // Comando
         this.register(new CommandMain(this));
         this.register(new ClanCommand(this));
 
-        //Evento
+        // Evento
         this.register(new CombatEvent());
         this.register(new JoinAndLeaveEvent());
         this.register(new ChatEvent());
 
-        saveDataTask = Scheduler.runTimer(() -> dataConfig.saveConfigs(), 10 * 60 * 20, 30 * 60 * 20);
+        // Placeholder
+        this.register(new Papi(this));
+
+        this.saveDataTask = Scheduler.runTimer(() -> dataConfig.saveConfigs(), 10 * 60 * 20, 30 * 60 * 20);
     }
 
     @Override
@@ -75,12 +93,14 @@ public class ExClan extends ExPlugin {
         if (dataConfig != null) {
             dataConfig.saveConfigs();
         }
-
+        if (warManager != null) {
+            warManager.stopAll();
+        }
     }
 
     @Override
     protected void onReload() {
-
+        this.mainConfig.reload();
     }
 
     public ClanManager getClanManager() {
@@ -97,5 +117,13 @@ public class ExClan extends ExPlugin {
 
     public ChatManager getChatManager() {
         return chatManager;
+    }
+
+    public BankManager getBankManager() {
+        return bankManager;
+    }
+
+    public WarManager getPointsWarManager() {
+        return warManager;
     }
 }

@@ -1,7 +1,6 @@
 main: ${plugin.main}
 version: ${plugin.version}
 name: ${plugin.name}
-author: nervisking
 authors:
   - nervisking
   - kevinazo
