@@ -1,0 +1,4 @@
+messages:
+  clan:
+    no_clan: "%prefix% &cNo estás en un clan."
+    not_leader: "%prefix% &cNo eres el líder del clan."

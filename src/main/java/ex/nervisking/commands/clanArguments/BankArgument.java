@@ -52,7 +52,7 @@ public class BankArgument implements CommandArgument {
                     sender.invalidityAmount();
                     return;
                 }
-                clanBankLocks.depositToClan(sender.asPlayer(), clanName, amount);
+                clanBankLocks.depositToClan(sender.getPlayer(), clanName, amount);
             }
             case "withdraw" -> {
                 if (!clanName.isManager(uuid)) {
@@ -71,7 +71,7 @@ public class BankArgument implements CommandArgument {
                     sender.invalidityAmount();
                     return;
                 }
-                clanBankLocks.withdrawFromClan(sender.asPlayer(), clanName, amount);
+                clanBankLocks.withdrawFromClan(sender.getPlayer(), clanName, amount);
             }
             case "balance" -> {
                 if (!clanName.isManager(uuid)) {

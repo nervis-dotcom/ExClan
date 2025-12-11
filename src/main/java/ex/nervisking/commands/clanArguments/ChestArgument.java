@@ -33,7 +33,7 @@ public class ChestArgument implements CommandArgument {
         }
 
         try {
-            clanName.getChest().openSharedChest(sender.asPlayer());
+            clanName.getChest().openSharedChest(sender.getPlayer());
         } catch (Exception e) {
             sender.sendMessage("%prefix% &cError al abrir el chest.");
         }

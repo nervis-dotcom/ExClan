@@ -4,6 +4,9 @@ import ex.api.base.ExPlugin;
 import ex.api.base.data.MenuInfo;
 import ex.api.base.data.PluginInfo;
 import ex.api.base.hook.VaultHook;
+import ex.api.base.language.Lang;
+import ex.api.base.language.Language;
+import ex.api.base.language.LanguageService;
 import ex.api.base.model.CustomColor;
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
@@ -34,6 +37,8 @@ public class ExClan extends ExPlugin {
     private ChatManager chatManager;
     private BankManager bankManager;
 
+    private Language language;
+
     @Override
     public String setPrefix() {
         return mainConfig.getPrefix();
@@ -58,6 +63,10 @@ public class ExClan extends ExPlugin {
                 .setEndColor(CustomColor.GOLD);
 
         VaultHook.setupEconomy();
+
+        // Idioma
+        this.language = LanguageService.register(Lang.ES, "Lang").addFiles(Lang.ES);
+        this.language.load();
 
         this.clanManager = new ClanManager();
 
@@ -101,6 +110,7 @@ public class ExClan extends ExPlugin {
     @Override
     protected void onReload() {
         this.mainConfig.reload();
+        this.language.reload();
     }
 
     public ClanManager getClanManager() {
@@ -125,5 +135,9 @@ public class ExClan extends ExPlugin {
 
     public WarManager getPointsWarManager() {
         return warManager;
+    }
+
+    public Language getLanguage() {
+        return language;
     }
 }

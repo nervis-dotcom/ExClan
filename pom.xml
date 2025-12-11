@@ -13,11 +13,6 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <plugin.folder>C:\Users\Usuario\Documents\Source</plugin.folder>
-
-        <!-- Variables que se filtran en plugin.yml -->
-        <plugin.name>ExClan</plugin.name>
-        <plugin.version>1.0.1</plugin.version>
-        <plugin.main>ex.nervisking.ExClan</plugin.main>
     </properties>
 
     <build>

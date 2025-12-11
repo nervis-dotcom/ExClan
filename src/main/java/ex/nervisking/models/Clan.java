@@ -50,7 +50,7 @@ public class Clan {
     }
 
     public Clan(String clanName, String leaderName, UUID laderUuid) {
-        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), new ArrayList<>(), 0, 0, "", null, true, true, Rank.getSymbols(), new HashMap<>(), null);
+        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), new ArrayList<>(), 0, 0, null, null, true, true, Rank.getSymbols(), new HashMap<>(), null);
     }
 
     public void setDelegate(UUID uuid, String name) {

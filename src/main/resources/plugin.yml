@@ -1,6 +1,6 @@
-main: ${plugin.main}
-version: ${plugin.version}
-name: ${plugin.name}
+name: ExClan
+main: ex.nervisking.ExClan
+version: 1.0.2
 authors:
   - nervisking
   - kevinazo

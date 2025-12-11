@@ -1,4 +1,4 @@
-package ex.nervisking.tasks.competition;
+package ex.nervisking.tasks;
 
 import ex.api.base.task.ExRunnable;
 import ex.api.base.task.Task;

@@ -2,8 +2,8 @@ package ex.nervisking.manager;
 
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
-import ex.nervisking.tasks.competition.BankWarTask;
-import ex.nervisking.tasks.competition.PointsWarTask;
+import ex.nervisking.tasks.BankWarTask;
+import ex.nervisking.tasks.PointsWarTask;
 
 public class WarManager {
 

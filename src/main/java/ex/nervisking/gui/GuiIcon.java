@@ -50,11 +50,10 @@ public class GuiIcon extends Menu<ExClan> {
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
 
-        int slot = event.getSlot();
-        if (slot == 13) {
+        if (event.getSlot(13)) {
             if (clan.hasIcon() && current != null) {
                 giveItem(player.getPlayer(), clearNameAndLore(current));
-                player.sendMessages("%prefix% &aHas quitado el icono del clan,");
+                player.sendMessage("%prefix% &aHas quitado el icono del clan,");
                 put(13, null);
                 clan.setIcon(null);
                 event.setCancelled(true);
@@ -66,12 +65,19 @@ public class GuiIcon extends Menu<ExClan> {
                     return;
                 }
                 if (!isBANNER(cursor)) {
-                    player.sendMessages("%prefix% &cEl icono debe ser un banner.");
+                    player.sendMessage("%prefix% &cEl icono debe ser un banner.");
                     event.setCancelled(true);
                     return;
                 }
-                clan.setIcon(cursor);
-                player.sendMessages("%prefix% &aHas puesto el icono del clan.");
+
+                var item = clearNameAndLore(cursor);
+                if (item == null) {
+                    return;
+                }
+
+                item.setAmount(1);
+                clan.setIcon(item.clone());
+                player.sendMessage("%prefix% &aHas puesto el icono del clan.");
             }
         } else {
             event.setCancelled(true);

@@ -35,7 +35,7 @@ public class TagArgument implements CommandArgument {
         }
 
         String tag = args.get(0);
-        if (utilsManagers.isValidText(tag, "^[a-zA-Z0-9_\\- &#]+$", 100)) {
+        if (utilsManagers.isValidText(utilsManagers.removeColorCodes(tag), "^[a-zA-Z0-9_\\- &#]+$", 3, 100)) {
             sender.sendMessage("%prefix% &cEl tag no es valido.");
             return;
         }

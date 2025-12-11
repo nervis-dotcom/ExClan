@@ -34,7 +34,7 @@ public class HomeArgument implements CommandArgument {
         }
 
         if (args.isEmpty()) {
-            openMenu(new HomeMenu(sender.asPlayer(), clan));
+            openMenu(new HomeMenu(sender.getPlayer(), clan));
             return;
         }
 
@@ -93,7 +93,7 @@ public class HomeArgument implements CommandArgument {
                     return;
                 }
 
-                PlayerTeleport.andRun(sender.asPlayer(), location, tm -> tm
+                PlayerTeleport.andRun(sender.getPlayer(), location, tm -> tm
                         .setMessage("%prefix% &aHas sido teletransportado al home %name%!".replace("%name%", clanName))
                         .setSound(Sound.ENTITY_ENDERMAN_TELEPORT)
                         .setParticle(Particle.FLAME)
