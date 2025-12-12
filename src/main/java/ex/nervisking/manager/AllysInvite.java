@@ -65,7 +65,7 @@ public class AllysInvite extends Service<ExClan> {
                 if (invites.isExpired()) {
                     Player request = Bukkit.getPlayer(invites.sender());
                     if (request != null && request.isOnline()) {
-                        sendMessage(request, "%prefix% &cTu invitación ha expirado.");
+                        sendMessage(request, language.getString("clan", "invitation-expired"));
                     }
 
                     this.invites.remove(invites);

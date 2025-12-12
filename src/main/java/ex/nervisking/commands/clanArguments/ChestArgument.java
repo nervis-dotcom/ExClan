@@ -5,30 +5,23 @@ import ex.api.base.command.CommandArg;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.command.Sender;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;
 
 @CommandArg(name = "chest", permission = true)
-public class ChestArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public ChestArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record ChestArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clanName = clanManager.getClan(uuid);
         if (clanName == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clanName.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 

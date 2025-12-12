@@ -1,4 +1,4 @@
-package ex.nervisking.models;
+package ex.nervisking.models.chat;
 
 public enum Chat {
     ALLY,

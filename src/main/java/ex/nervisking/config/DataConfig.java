@@ -36,7 +36,6 @@ public class DataConfig extends FolderConfig<ExClan> {
                 boolean pvp = config.getBoolean(clanPath + ".pvp");
                 boolean pvpAlly = config.getBoolean(clanPath + ".pvp-ally");
 
-                // 🔹 Miembros
                 List<Member> members = new ArrayList<>();
                 ConfigurationSection membersSection = config.getConfigurationSection(clanPath + ".members");
                 if (membersSection != null) {
@@ -51,7 +50,6 @@ public class DataConfig extends FolderConfig<ExClan> {
                     }
                 }
 
-                // 🔹 Baneados
                 Set<UUID> bannedMembers = new HashSet<>();
                 if (config.isList(clanPath + ".banned-members")) {
                     for (String uuidString : config.getStringList(clanPath + ".banned-members")) {
@@ -116,11 +114,9 @@ public class DataConfig extends FolderConfig<ExClan> {
 
                 ItemStack icon = config.getItemStack(clanPath + ".icon");
 
-                // 🔹 Crear clan
                 Clan clan = new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, homes, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems, icon);
 
                 clan.setBank(config.getLong(clanPath + ".bank", 0));
-                // 🔹 Crear clan
                 plugin.getClanManager().addClan(clanId, clan);
             }
         }
@@ -134,7 +130,6 @@ public class DataConfig extends FolderConfig<ExClan> {
             var customConfig = getConfigFileOrCreate(clan.getClanName());
             FileConfiguration config = customConfig.getConfig();
 
-            // 🔹 Resetear sección
             config.set("data", null);
 
             String clanPath = "data.";
@@ -150,7 +145,6 @@ public class DataConfig extends FolderConfig<ExClan> {
             config.set(clanPath + "pvp-ally", clan.isPvpAlly());
             config.set(clanPath + "icon", clan.getIcon());
 
-            // 🔹 Miembros
             if (clan.getMembers() != null && !clan.getMembers().isEmpty()) {
                 for (Member member : clan.getMembers()) {
                     if (member != null && member.getUuid() != null) {
@@ -160,19 +154,16 @@ public class DataConfig extends FolderConfig<ExClan> {
                 }
             }
 
-            // 🔹 Baneados
             if (clan.getBannedMembers() != null && !clan.getBannedMembers().isEmpty()) {
                 List<String> bannedList = clan.getBannedMembers().stream().filter(Objects::nonNull).map(UUID::toString).toList();
                 config.set(clanPath + "banned-members", new ArrayList<>(bannedList));
             }
 
-            // 🔹 Allies
             if (clan.getAllys() != null && !clan.getAllys().isEmpty()) {
                 List<String> allyList = clan.getAllys().stream().filter(Objects::nonNull).toList();
                 config.set(clanPath + "allys", new ArrayList<>(allyList));
             }
 
-            // 🔹 Símbolos
             if (clan.getSymbols() != null && !clan.getSymbols().isEmpty()) {
                 for (var entry : clan.getSymbols().entrySet()) {
                     config.set(clanPath + "symbols." + entry.getKey().name(), entry.getValue().name());
@@ -195,7 +186,6 @@ public class DataConfig extends FolderConfig<ExClan> {
                 }
             }
 
-            // 🔹 Chest
             if (clan.getChest() != null) {
                 var chestItems = clan.getChest().getStorage();
                 for (var entry : chestItems.entrySet()) {

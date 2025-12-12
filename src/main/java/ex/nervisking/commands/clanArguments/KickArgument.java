@@ -2,7 +2,6 @@ package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -10,29 +9,23 @@ import org.bukkit.entity.Player;
 import java.util.UUID;
 
 @CommandArg(name = "kick", description = "Expulsa a un jugador del clan.", permission = true)
-public class KickArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public KickArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record KickArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clan.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes indicar un jugador para invitar.");
+            sender.helpLang("kick.no-player");
             return;
         }
 
@@ -43,19 +36,19 @@ public class KickArgument implements CommandArgument {
         }
 
         if (!clan.hasMember(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
+            sender.sendLang("not-member");
             return;
         }
 
         if (playerName.isOnline()) {
-            utilsManagers.sendMessage(playerName.getPlayer(), "%prefix% &cHas sido expulsado del clan.");
+            utilsManagers.sendMessage(playerName.getPlayer(), language.getString("clan", "kick.kicked"));
         }
 
         clan.removeMember(playerName.getUniqueId());
 
-        clan.getOnlineAll().forEach(member -> {
-            utilsManagers.sendMessage(member, "%prefix% &aEl jugador: " + playerName.getName() + " ha sido expulsado del clan por " + sender.getName() + ".");
-        });
+        clan.getOnlineAll().forEach(member -> utilsManagers.sendMessage(member, language.getString("clan", "kick.notify-members")
+                .replace("%player%", playerName.getName())
+                .replace("%sender%", sender.getName())));
     }
 
     @Override

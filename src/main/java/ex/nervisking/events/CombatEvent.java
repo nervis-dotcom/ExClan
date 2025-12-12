@@ -3,6 +3,7 @@ package ex.nervisking.events;
 import ex.api.base.event.Event;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.MainConfig;
 import ex.nervisking.manager.WarManager;
 import ex.nervisking.models.Clan;
 import org.bukkit.entity.Player;
@@ -12,14 +13,22 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+
 public class CombatEvent extends Event<ExClan> {
 
+    private final MainConfig config;
     private final ClanManager clanManager;
     private final WarManager warManager;
+    private final Map<UUID, Map<UUID, Long>> lastKills;
 
     public CombatEvent() {
         this.clanManager = plugin.getClanManager();
         this.warManager = plugin.getPointsWarManager();
+        this.config = plugin.getMainConfig();
+        this.lastKills = new HashMap<>();
     }
 
     @EventHandler
@@ -73,36 +82,60 @@ public class CombatEvent extends Event<ExClan> {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();
 
-        if (killer == null || killer.equals(victim)) return; // evitar suicidios
+        if (killer == null || killer.equals(victim)) return;
 
-        // Obtener clanes
         Clan killerClan = clanManager.getClan(killer.getUniqueId());
         Clan victimClan = clanManager.getClan(victim.getUniqueId());
 
-        if (killerClan == null || victimClan == null) return; // alguno no tiene clan
+        if (killerClan == null || victimClan == null) return;
 
-        if (killerClan == victimClan) return; //
+        if (killerClan == victimClan) return;
 
-        // Configurable
-        int pointsPerKill = 10;
-        int pointsPerDeath = 5;
+        long now = System.currentTimeMillis();
+        long cooldown = parseTime(config.getCooldownTime());
+
+        Map<UUID, Long> victimMap = lastKills.getOrDefault(killer.getUniqueId(), new HashMap<>());
+        Long lastKillTime = victimMap.get(victim.getUniqueId());
+
+        if (lastKillTime != null && (now - lastKillTime) < cooldown) {
+            if (config.hasCooldownMessage()) {
+                sendMessage(killer, config.getCooldownMessage().replace("%player%", victim.getName()));
+            }
+            return;
+        }
+
+        victimMap.put(victim.getUniqueId(), now);
+        lastKills.put(killer.getUniqueId(), victimMap);
+
+        int pointsPerKill = config.getPointEarned();
+        int pointsPerDeath = config.getPointLosing();
         if (warManager.enabledPoint()) {
             pointsPerKill = 20;
             pointsPerDeath = 10;
         }
 
-        // Dar puntos al clan del killer
         killerClan.addPoints(pointsPerKill);
-
-        // Quitar puntos al clan de la víctima
         victimClan.removePoints(pointsPerDeath);
         victimClan.addKills(1);
 
-        // Mensajes
-        sendMessage(killer,"%prefix% &a¡Tu clan ganó +" + pointsPerKill + " puntos por matar a " + victim.getName() + "!");
-        sendMessage(victim,"%prefix% &cTu clan perdió -" + pointsPerDeath + " puntos por tu muerte...");
+        if (config.hasKillerMessage()) {
+            sendMessage(killer, config.getKillerMessage()
+                    .replace("%points%", String.valueOf(pointsPerKill))
+                    .replace("%target%", victim.getName())
+                    .replace("%target_clan%", victimClan.getClanName()));
+        }
 
-        // Broadcast opcional
-        sendBroadcastMessage("%prefix% &e" + killerClan.getClanName() + " &aganó +" + pointsPerKill + " puntos y &e" + victimClan.getClanName() + " &cPerdió -" + pointsPerDeath + " puntos.");
+        if (config.hasVictimMessage()) {
+            sendMessage(victim, config.getVictimMessage()
+                    .replace("%points%", String.valueOf(pointsPerDeath)));
+        }
+
+        if (config.hasBroadcastPointsMessage()) {
+            sendBroadcastMessage(config.getBroadcastPointsMessage()
+                    .replace("%killer_clan%", killerClan.getClanName())
+                    .replace("%victim_clan%", victimClan.getClanName())
+                    .replace("%points_earned%", String.valueOf(pointsPerKill))
+                    .replace("%points_lost%", String.valueOf(pointsPerDeath)));
+        }
     }
 }

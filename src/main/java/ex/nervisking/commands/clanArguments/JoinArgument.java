@@ -1,6 +1,7 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.manager.RequestInvite;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
@@ -25,7 +26,7 @@ public class JoinArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes poner el nombre del clan.");
+            sender.helpLang("no-name-clan");
             return;
         }
 
@@ -33,38 +34,38 @@ public class JoinArgument implements CommandArgument {
 
         UUID uuid = sender.getUniqueId();
         if (clanManager.isInClan(uuid)) {
-            sender.sendMessage("%prefix% &cYa estás en un clan.");
+            sender.sendLang("already-in-clan");
             return;
         }
 
         RequestInvite.Request request = requestInvite.getInvite(clanName, uuid);
         if (request == null) {
-            sender.sendMessage("%prefix% &cNo tienes una invitación para este clan.");
+            sender.sendLang("join.no-invite");
             return;
         }
 
         if (request.isExpired()) {
-            sender.sendMessage("%prefix% &cLa invitación ha expirado.");
+            sender.sendLang("join.expired");
             return;
         }
 
         Clan clan = clanManager.getClan(clanName);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cEl clan no existe.");
+            sender.sendLang("not-exist");
             return;
         }
 
         if (clan.isBanned(uuid)) {
-            sender.sendMessage("%prefix% &cEstas Baneado del clan.");
+            sender.sendLang("join.banned");
             return;
         }
 
         clan.addMember(uuid, Rank.MEMBER);
         requestInvite.removeInvite(clanName, uuid);
-        sender.sendMessage("%prefix% &aHaz ingresado al clan: " + clanName);
+        sender.sendLang("join.success", ParseVariable.adD("%clan%", clanName));
         Player player = Bukkit.getPlayer(request.sender());
         if (player != null && player.isOnline()) {
-            utilsManagers.sendMessage(player, "%prefix% &aEl jugador " + sender.getName() + " ha aceptado la invitación al clan.");
+            utilsManagers.sendMessage(player, language.getString("clan", "join.notify-leader").replace("%player%", sender.getName()));
         }
     }
 

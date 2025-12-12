@@ -1,6 +1,7 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.manager.AllysInvite;
@@ -22,7 +23,7 @@ public class AllysArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(2)) {
-            sender.help("Usa /clan allys <invite | joint> <name>");
+            sender.helpLang("ally.usage");
             return;
         }
 
@@ -30,81 +31,81 @@ public class AllysArgument implements CommandArgument {
 
         Clan clanTarget = clanManager.getClan(name);
         if (clanTarget == null) {
-            sender.sendMessage("%prefix% &cNo existe el clan.");
+            sender.sendLang("not-exist");
             return;
         }
 
         Clan clan = clanManager.getClan(sender.getUniqueId());
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
         if (!clan.isManager(sender.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (clanTarget.getClanName().equalsIgnoreCase(clan.getClanName())) {
-            sender.sendMessage("%prefix% &cNo puedes unirte a ti mismo.");
+            sender.sendLang("self");
             return;
         }
 
         switch (args.get(0).toUpperCase()) {
             case "INVITE" -> {
                 if (clan.isAlly(name)) {
-                    sender.sendMessage("%prefix% &cYa son aliados.");
+                    sender.sendLang("ally.already-allies");
                     return;
                 }
                 if (clanTarget.isManagerOnline()) {
                     if (allysInvite.hasInvite(clan.getClanName(), clanTarget.getClanName())) {
-                        sender.sendMessage("%prefix% &cYa tienes una invitación para este clan.");
+                        sender.sendLang("ally.invite.already-sent");
                         return;
                     }
                     allysInvite.addInvite(clan.getClanName(), clanTarget.getClanName(), sender.getUniqueId());
-                    sender.sendMessage("%prefix% &aInvitación enviada a " + clanTarget.getClanName() + ".");
+                    sender.sendLang("ally.invite.sent", ParseVariable.adD("%clan%", clanTarget.getClanName()));
                 } else {
-                    sender.sendMessage("%prefix% &cNo ay un líder conectado que acepte tu invitación.");
+                    sender.sendLang("ally.invite.no-manager-online");
                 }
             }
             case "JOINT" -> {
                 if (clan.isAlly(name)) {
-                    sender.sendMessage("%prefix% &cYa son aliados.");
+                    sender.sendLang("ally.already-allies");
                     return;
                 }
 
                 AllysInvite.Request request = allysInvite.getInvite(clan.getClanName(), clanTarget.getClanName());
                 if (request == null) {
-                    sender.sendMessage("%prefix% &cNo tienes una invitación para este clan.");
+                    sender.sendLang("ally.joint.no-invite");
                     return;
                 }
 
                 if (request.isExpired()) {
-                    sender.sendMessage("%prefix% &cLa invitación ha expirado.");
+                    sender.sendLang("ally.joint.expired");
                     return;
                 }
 
                 clanTarget.addAlly(clan.getClanName());
                 clan.addAlly(clanTarget.getClanName());
-                sender.sendMessage("%prefix% &aHaz ingresado al clan: " + clanTarget.getClanName());
+                sender.sendLang("ally.joint.success-sender", ParseVariable.adD("%clan%", clanTarget.getClanName()));
                 allysInvite.removeInvite(clan.getClanName(), clanTarget.getClanName());
                 Player player = Bukkit.getPlayer(request.sender());
                 if (player != null && player.isOnline()) {
-                    utilsManagers.sendMessage(player, "%prefix% &aEl jugador " + sender.getName() + " ha aceptado la invitación al clan.");
+                    utilsManagers.sendMessage(player, language.getString("clan", "ally.joint.notify-owner").replace("%player%", sender.getName()));
                 }
             }
             case "UNALLY" -> {
                 if (!clan.isAlly(clanTarget.getClanName())) {
-                    sender.sendMessage("%prefix% &cNo tienes una alianza con este clan.");
+                    sender.sendLang("ally.unally.not-ally");
                     return;
                 }
 
                 clan.removeAlly(clanTarget.getClanName());
                 clanTarget.removeAlly(clan.getClanName());
 
-                sender.sendMessage("%prefix% &aHas roto la alianza con el clan " + clanTarget.getClanName() + ".");
+                sender.sendLang("ally.unally.removed", ParseVariable.adD("%clan%", clanTarget.getClanName()));
             }
-            default -> sender.help("Usa /clan allys <invite | joint> <name>");
+            default -> sender.helpLang("ally.usage");
         }
     }
 

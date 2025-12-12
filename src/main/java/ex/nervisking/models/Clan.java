@@ -3,7 +3,6 @@ package ex.nervisking.models;
 import ex.api.base.gui.Row;
 import ex.api.base.gui.trunk.VirtualChest;
 import ex.api.base.model.Coordinate;
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -116,7 +115,7 @@ public class Clan {
     }
 
     public void removePoints(int amount) {
-        this.points = Math.max(0, this.points - amount); // evitar negativos
+        this.points = Math.max(0, this.points - amount);
     }
 
     public int getKills() {
@@ -212,7 +211,7 @@ public class Clan {
                 members.add(player);
             }
         }
-        Player player = Bukkit.getPlayer(this.lader.getUuid());
+        Player player = lader.getPlayer();
         if (player != null && player.isOnline()) {
             members.add(player);
         }

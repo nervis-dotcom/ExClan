@@ -2,32 +2,25 @@ package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Member;
 
 import java.util.UUID;
 
 @CommandArg(name = "pvp", permission = true)
-public class PvpArgument implements CommandArgument {
-
-    private final ClanManager clanManager;
-
-    public PvpArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record PvpArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(2)) {
-            sender.help("Usa /clan pvp <clan | ally | only> <true/false>");
+            sender.helpLang("pvp.usage");
             return;
         }
 
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
@@ -36,29 +29,29 @@ public class PvpArgument implements CommandArgument {
             case "CLAN" -> {
                 if (clan.isManager(uuid)) {
                     clan.setPvp(status);
-                    sender.sendMessage("%prefix% &aPvp clan " + (status ? "activado" : "desactivado") + ".");
+                    sender.sendLang((status ? "pvp.clan.enabled" : "pvp.clan.disabled"));
                 } else {
-                    sender.sendMessage("%prefix% &cNo eres líder del clan.");
+                    sender.sendLang("not-leader");
                 }
             }
             case "ALLY" -> {
                 if (clan.isManager(uuid)) {
                     clan.setPvpAlly(status);
-                    sender.sendMessage("%prefix% &aPvp ally " + (status ? "activado" : "desactivado") + ".");
+                    sender.sendLang((status ? "pvp.ally.enabled" : "pvp.ally.disabled"));
                 } else {
-                    sender.sendMessage("%prefix% &cNo eres líder del clan.");
+                    sender.sendLang("not-leader");
                 }
             }
             case "ONLY" -> {
                 Member member = clan.getMember(uuid);
                 if (member != null) {
                     member.setPvp(status);
-                    sender.sendMessage("%prefix% &aPvp " + (status ? "activado" : "desactivado"));
+                    sender.sendLang((status ? "pvp.only.enabled" : "pvp.only.disabled"));
                 } else {
-                    sender.sendMessage("%prefix% &cNo eres miembro del clan.");
+                    sender.sendLang("pvp.not-member");
                 }
             }
-            default -> sender.help("Usa /clan pvp <clan | ally | only> <true/false>");
+            default -> sender.helpLang("pvp.usage");
         }
     }
 

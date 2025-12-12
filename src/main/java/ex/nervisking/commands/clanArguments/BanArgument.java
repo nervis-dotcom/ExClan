@@ -1,8 +1,8 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Member;
 import org.bukkit.OfflinePlayer;
@@ -10,18 +10,12 @@ import org.bukkit.OfflinePlayer;
 import java.util.Objects;
 
 @CommandArg(name = "ban", permission = true)
-public class BanArgument implements CommandArgument {
-
-    private final ClanManager clanManager;
-
-    public BanArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record BanArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
-            sender.help("Usa /clan ban <player>");
+            sender.helpLang("ban.usage");
         }
 
         OfflinePlayer offlinePlayer = args.getOfflinePlayer(0);
@@ -32,27 +26,27 @@ public class BanArgument implements CommandArgument {
 
         Clan clan = clanManager.getClan(sender.getUniqueId());
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
         if (!clan.isManager(sender.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (sender.getUniqueId().equals(offlinePlayer.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo puedes banearte a ti mismo.");
+            sender.sendLang("ban.self-ban");
             return;
         }
 
         if (clan.isBanned(offlinePlayer.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEste jugador ya está baneado.");
+            sender.sendLang("ban.already-banned");
             return;
         }
 
         clan.banMember(offlinePlayer.getUniqueId());
-        sender.sendMessage("%prefix% &aHaz baneado al jugador: " + offlinePlayer.getName());
+        sender.sendLang("ban.success", ParseVariable.adD("%player%", offlinePlayer.getName()));
     }
 
     @Override

@@ -22,7 +22,7 @@ public class Papi extends PlaceholderApiHook {
     }
 
     @Override
-    public Identifier register(@Nullable Player player, @NotNull String string, @NotNull Identifier identifier) {
+    public @NotNull Identifier register(@Nullable Player player, @NotNull String string, @NotNull Identifier identifier) {
         String[] parts = string.toLowerCase().split("_");
 
         // EJEMPLOS:
@@ -203,26 +203,69 @@ public class Papi extends PlaceholderApiHook {
             // %exclan_top_[type]_[name/position]%
             case "top" -> {
 
-                if (arg == null || extra == null) return identifier.nulL();
+                if (arg == null || extra == null){
+                    return identifier.nulL();
+                }
 
-                try {
-                    int position = Integer.parseInt(extra);
-                    return switch (arg) {
-                        case "points" -> {
-                            var pos = clanManager.getClanByPosition(position);
-                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
-                        }
-                        case "kills" -> {
-                            var pos = clanManager.getClanByKillsPosition(position);
-                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
-                        }
-                        case "bank" -> {
-                            var pos = clanManager.getClanByBankPosition(position);
-                            yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
-                        }
-                        default -> identifier.NT();
-                    };
-                } catch (NumberFormatException e) {
+                String[] tp = arg.split("-");
+                if (tp.length >= 2) {
+                    try {
+
+                        String typ = tp[0];
+                        String exa = tp[1];
+                        int position = Integer.parseInt(extra);
+                        return switch (typ) {
+                            case "points" -> switch (exa) {
+                                case "name" -> {
+                                    var pos = clanManager.getClanByPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
+                                }
+                                case "value" -> {
+                                    var pos = clanManager.getClanByPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getPoints());
+                                }
+                                case "format" -> {
+                                    var pos = clanManager.getClanByPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(utilsManagers.format(pos.getPoints()));
+                                }
+                                default -> identifier.nulL();
+                            };
+                            case "kills" -> switch (exa) {
+                                case "name" -> {
+                                    var pos = clanManager.getClanByKillsPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
+                                }
+                                case "value" -> {
+                                    var pos = clanManager.getClanByKillsPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getKills());
+                                }
+                                case "format" -> {
+                                    var pos = clanManager.getClanByKillsPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(utilsManagers.format(pos.getKills()));
+                                }
+                                default -> identifier.nulL();
+                            };
+                            case "bank" -> switch (exa) {
+                                case "name" -> {
+                                    var pos = clanManager.getClanByBankPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getClanName());
+                                }
+                                case "value" -> {
+                                    var pos = clanManager.getClanByBankPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(pos.getBankDouble());
+                                }
+                                case "format" -> {
+                                    var pos = clanManager.getClanByBankPosition(position);
+                                    yield pos == null ? identifier.empty() : identifier.set(utilsManagers.format(pos.getBankDouble()));
+                                }
+                                default -> identifier.nulL();
+                            };
+                            default -> identifier.nulL();
+                        };
+                    } catch (NumberFormatException e) {
+                        return identifier.nulL();
+                    }
+                } else {
                     return switch (arg) {
                         case "points" -> {
                             int pos = clanManager.getClanPosition(extra);
@@ -236,7 +279,7 @@ public class Papi extends PlaceholderApiHook {
                             int pos = clanManager.getClanBankPosition(extra);
                             yield pos == -1 ? identifier.NT() : identifier.set(pos);
                         }
-                        default -> identifier.NT();
+                        default -> identifier.nulL();
                     };
                 }
             }

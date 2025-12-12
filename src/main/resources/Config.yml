@@ -1,1 +1,57 @@
 prefix: "&#ff0000&lᴇ&#ff3000&lx&#ff6000&lᴄ&#ff8f00&lʟ&#ffbf00&lᴀ&#ffef00&lɴ &8»"
+
+config:
+  join-message: "%prefix% &aTu compañero de equipo: %prefix% ha ingresado al servidor."
+  leave-message: "%prefix% &aTu compañero de equipo: %player% ha salido del servidor."
+  point-kills:
+    for-earned: 2
+    for-losing: 1
+    message-killer: "%prefix% &a¡Tu clan ganó %points% puntos por matar a %target% del clan %target_clan%!"
+    message-victim: "%prefix% &cTu clan perdió %points% puntos por tu muerte."
+    broadcast-points-message: "%prefix% &e %killer_clan% &aganó %points_earned% puntos y %victim_clan% &cPerdió %points_lost% puntos."
+    cooldown:
+      time: "2m"
+      message: "%prefix% No puedes farmear a %player%. Espera un poco antes de volver a ganar puntos."
+
+chat-format:
+  clan:
+    format: "&8[&bClan&8] &7| &r%display_name% &8» &f"
+    hover:
+      player:
+        enabled: false
+        hover: [ ]
+        # Clic actions
+        click:
+          enabled: true
+          # Tags: SUGGEST, EXECUTE, OPEN, COPY
+          tag: "SUGGEST"
+          action: "/msg %player% "
+      message:
+        enabled: false
+        hover: [ ]
+        # Clic actions
+        click:
+          enabled: false
+          # Tags: SUGGEST, EXECUTE, OPEN, COPY
+          tag: "SUGGEST"
+  allay:
+    format: "&8[&eAlly&8] &7| &r%display_name% &8» &f"
+    hover:
+      player:
+        enabled: false
+        hover: [ ]
+        # Clic actions
+        click:
+          enabled: true
+          # Tags: SUGGEST, EXECUTE, OPEN, COPY
+          tag: "SUGGEST"
+          action: "/msg %player% "
+      message:
+        enabled: false
+        hover: [ ]
+        # Clic actions
+        click:
+          enabled: false
+          # Tags: SUGGEST, EXECUTE, OPEN, COPY
+          tag: "SUGGEST"
+

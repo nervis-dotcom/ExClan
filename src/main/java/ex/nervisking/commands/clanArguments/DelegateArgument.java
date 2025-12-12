@@ -5,6 +5,7 @@ import ex.api.base.command.CommandArg;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.command.Sender;
 import ex.api.base.model.CustomColor;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.DiscordWebhooks;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
@@ -14,29 +15,23 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 @CommandArg(name = "delegate", description = "Delega a un jugador del clan.", permission = true)
-public class DelegateArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public DelegateArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record DelegateArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clan.isLader(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes poner un jugador para delegar.");
+            sender.sendLang("delegate.no-player");
             return;
         }
 
@@ -47,16 +42,16 @@ public class DelegateArgument implements CommandArgument {
         }
 
         if (!clan.hasMember(offlinePlayer.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
+            sender.sendLang("not-member");
             return;
         }
 
         clan.setDelegate(offlinePlayer.getUniqueId(), offlinePlayer.getName());
-        sender.sendMessage("%prefix% &aDelegado a: " + offlinePlayer.getName() + " tu haz quedado como sub líder.");
 
-        clan.getOnlineAll().forEach(player -> {
-            utilsManagers.sendMessage(player, "%prefix% &aEl clan tiene un nuevo líder: " + offlinePlayer.getName() + ".");
-        });
+        sender.sendLang("delegate.success", ParseVariable.adD("%player%", offlinePlayer.getName()));
+
+        clan.getOnlineAll().forEach(player -> utilsManagers.sendMessage(player, language.getString("clan", "delegate.notify-members")
+                .replace("%player%", offlinePlayer.getName())));
 
         if (clan.getDiscord() != null) {
             DiscordWebhooks
@@ -65,7 +60,7 @@ public class DelegateArgument implements CommandArgument {
                     .setTitle("announcement")
                     .setColor(CustomColor.YELLOW)
                     .setAvatarByPlayer(sender.getName())
-                    .setDescription("El clan tiene un nuevo líder: " + offlinePlayer.getName() + ".")
+                    .setDescription(language.getString("clan", "delegate.discord").replace("%player%", offlinePlayer.getName()))
                     .hideError()
                     .sendAsync();
         }

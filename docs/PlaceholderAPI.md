@@ -144,6 +144,16 @@ Prefijo:
 ```
 %exclan_top_<tipo>_<argumento>%
 ```
+## Por posicion:
+
+%exclan_top_<[tipo]-name>_<posicion>%
+%exclan_top_<[tipo]-value>_<posicion>%
+%exclan_top_<[tipo]-format>_<posicion>%
+
+## Por nombre:
+
+%exclan_top_<tipo>_<nombre>%
+
 ## Tipos
 
 - kills  
@@ -153,11 +163,11 @@ Prefijo:
 ## Argumento
 
 - nombre del clan
-
+- posicion
 
 ## A) Obtener nombre del clan según posición
 ```
-%exclan_top_points_1%
+%exclan_top_points-name_1%
 ```
 
 ## B) Obtener posición del clan por nombre

@@ -1,6 +1,7 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.manager.RequestInvite;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
@@ -25,16 +26,16 @@ public class InviteArgument implements CommandArgument {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clan.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes indicar un jugador para invitar.");
+            sender.helpLang("invite.missing-player");
             return;
         }
 
@@ -45,23 +46,23 @@ public class InviteArgument implements CommandArgument {
         }
 
         if (clanManager.isInClan(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador ya está en un clan.");
+            sender.sendLang("invite.already-in-clan");
             return;
         }
 
         if (clan.isBanned(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador está baneado del clan.");
+            sender.sendLang("invite.banned");
             return;
         }
 
         if (requestInvite.hasInvite(clan.getClanName(), playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cYa haz enviado una invitación al jugador para unir al clan.");
+            sender.sendLang("invite.already-invited");
             return;
         }
 
         requestInvite.addInvite(clan.getClanName(), uuid, playerName.getUniqueId());
-        utilsManagers.sendMessage(playerName, "%prefix% &aTienes una nueva para unite al clan: " + clan.getClanName() + ".");
-        sender.sendMessage("%prefix% &aInvitación enviada a " + playerName.getName() + ".");
+        sender.sendLang("invite.sent-success", ParseVariable.adD("%player%", playerName.getName()));
+        utilsManagers.sendMessage(playerName, language.getString("clan", "invite.sent-to-player").replace("%clan%", clan.getClanName()));
     }
 
     @Override

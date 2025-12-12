@@ -4,6 +4,7 @@ import ex.api.base.command.Arguments;
 import ex.api.base.command.CommandArg;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.command.Sender;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
@@ -11,32 +12,27 @@ import ex.nervisking.models.Clan;
 import java.util.UUID;
 
 @CommandArg(name = "leave", description = "Salir del clan.", permission = true)
-public class LeaveArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public LeaveArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record LeaveArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments arguments) {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (clan.isLader(uuid)) {
-            sender.sendMessage("%prefix% &cNo puedes salir del clan siendo líder, Elimina el clan o delega a un nuevo líder.");
+            sender.sendLang("leave.is-leader");
             return;
         }
 
         if (clan.hasMember(uuid)) {
             clan.removeMember(uuid);
-            sender.sendMessage("%prefix% &aHas salido del clan: " + clan.getClanName());
+            sender.sendLang("leave.success", ParseVariable.adD("%clan%", clan.getClanName()));
 
-            clan.getOnlineAll().forEach(member -> utilsManagers.sendMessage(member, "%prefix% &aEl jugador: " + sender.getName() + " ha salido del clan."));
+            clan.getOnlineAll().forEach(member -> utilsManagers.sendMessage(member, language.getString("clan", "leave.notify-members")
+                    .replace("%player%", sender.getName())));
         }
     }
 }

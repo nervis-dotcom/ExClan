@@ -1,25 +1,19 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 
 @CommandArg(name = "unban", permission = true)
-public class UnBanArgument  implements CommandArgument {
-
-    private final ClanManager clanManager;
-
-    public UnBanArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record UnBanArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
-            sender.help("Usa /clan unban <player>");
+            sender.helpLang("unban.usage");
         }
 
         OfflinePlayer offlinePlayer = args.getOfflinePlayer(0);
@@ -30,22 +24,22 @@ public class UnBanArgument  implements CommandArgument {
 
         Clan clan = clanManager.getClan(sender.getUniqueId());
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
         if (!clan.isManager(sender.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (!clan.isBanned(offlinePlayer.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEste jugador no está baneado.");
+            sender.sendLang("unban.not-banned");
             return;
         }
 
         clan.unbanMember(offlinePlayer.getUniqueId());
-        sender.sendMessage("%prefix% &aHaz desbaneado al jugador: " + offlinePlayer.getName());
+        sender.sendLang("unban.success", ParseVariable.adD("%player%", offlinePlayer.getName()).add("%clan%", clan.getClanName()));
     }
 
     @Override

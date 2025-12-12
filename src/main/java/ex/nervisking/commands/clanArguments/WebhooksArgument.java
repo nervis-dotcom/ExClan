@@ -1,70 +1,64 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.LinkUtils;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;
 
 @CommandArg(name = "webhooks", description = "agrega un link para enviar mensaje a un canal de discord.", permission = true)
-public class WebhooksArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public WebhooksArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record WebhooksArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clanName = clanManager.getClan(uuid);
         if (clanName == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clanName.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &aUsa /clan webhooks <add/remove/get>");
+            sender.helpLang("webhooks.usage");
             return;
         }
 
         switch (args.toLowerCase(0)) {
             case "add" -> {
                 if (args.lacksMinArgs(2)) {
-                    sender.sendMessage("%prefix% &aUsa /clan webhooks add <link>");
+                    sender.sendLang("webhooks.add-usage");
                     return;
                 }
 
                 String link = args.get(1);
                 if (!LinkUtils.isLinkFrom(link, "discord.com/api/webhooks")) {
-                    sender.sendMessage("%prefix% &cEl link no es valido.");
+                    sender.sendLang("webhooks.invalid-link");
                     return;
                 }
                 clanName.setDiscord(link);
-                sender.sendMessage("%prefix% &aLink agregado correctamente.");
+                sender.sendLang("webhooks.added");
             }
             case "remove" -> {
                 clanName.setDiscord(null);
-                sender.sendMessage("%prefix% &aLink removido correctamente.");
+                sender.sendLang("webhooks.removed");
             }
 
             case "get" -> {
                 String link = clanName.getDiscord();
                 if (link == null) {
-                    sender.sendMessage("%prefix% &cNo hay link agregado.");
+                    sender.sendLang("webhooks.no-link");
                 } else {
-                    sender.sendMessage("%prefix% &aLink: " + link);
+                    sender.sendLang("webhooks.get", ParseVariable.adD("%link%", link));
                 }
             }
 
-            default -> sender.sendMessage("%prefix% &aUsa /clan webhooks <add/remove/get>");
+            default -> sender.helpLang("webhooks.usage");
         }
     }
 

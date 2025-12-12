@@ -10,11 +10,11 @@ public class ClanCommand extends CommandArgumentBase {
 
     public ClanCommand(ExClan plugin) {
         super(
-                new CreateArgument(plugin), new DisBandeArgument(plugin), new TagArgument(plugin), new InviteArgument(plugin),
-                new JoinArgument(plugin), new LeaveArgument(plugin), new KickArgument(plugin), new PromoteArgument(plugin),
-                new DemoteArgument(plugin), new ChatArgument(plugin), new DelegateArgument(plugin), new WebhooksArgument(plugin),
-                new AllysArgument(plugin), new PvpArgument(plugin), new BanArgument(plugin), new UnBanArgument(plugin),
-                new SymbolsArgument(plugin), new ChestArgument(plugin), new BankArgument(plugin), new IconArgument(plugin.getClanManager()),
+                new CreateArgument(plugin.getClanManager()), new DisBandeArgument(plugin.getClanManager()), new TagArgument(plugin.getClanManager()), new InviteArgument(plugin),
+                new JoinArgument(plugin), new LeaveArgument(plugin.getClanManager()), new KickArgument(plugin.getClanManager()), new PromoteArgument(plugin.getClanManager()),
+                new DemoteArgument(plugin.getClanManager()), new ChatArgument(plugin), new DelegateArgument(plugin.getClanManager()), new WebhooksArgument(plugin.getClanManager()),
+                new AllysArgument(plugin), new PvpArgument(plugin.getClanManager()), new BanArgument(plugin.getClanManager()), new UnBanArgument(plugin.getClanManager()),
+                new SymbolsArgument(plugin.getClanManager()), new ChestArgument(plugin.getClanManager()), new BankArgument(plugin), new IconArgument(plugin.getClanManager()),
                 new HomeArgument(plugin)
         );
     }

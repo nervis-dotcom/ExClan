@@ -1,7 +1,7 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
-import ex.api.base.model.Coordinate;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.PlayerTeleport;
 import ex.api.base.utils.teleport.TPAnimation;
 import ex.nervisking.ClanManager;
@@ -29,7 +29,7 @@ public class HomeArgument implements CommandArgument {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
@@ -39,44 +39,42 @@ public class HomeArgument implements CommandArgument {
         }
 
         if (args.lacksMinArgs(2)) {
-            sender.help("Usa /clan <set | delete | tp> <home>");
+            sender.helpLang("home.usage");
             return;
         }
         String clanName = args.get(1);
         switch (args.get(0).toLowerCase()) {
             case "set" -> {
                 if (!clan.isLader(uuid)) {
-                    sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+                    sender.sendLang("not-leader");
                     return;
                 }
 
                 if (utilsManagers.isValidText(clanName) || utilsManagers.hasColorCodes(clanName)) {
-                    sender.sendMessage("%prefix% &cEl nombre no es valido.");
+                    sender.sendLang("invalid-name");
                     return;
                 }
-                Location loc = sender.getLocation();
-                Coordinate coordinate = Coordinate.of(sender.getWorld().getName(), loc.getX(), loc.getY(), loc.getZ(), loc.getYaw(), loc.getPitch());
-                clan.addHome(clanName, coordinate);
-                sender.sendMessage("%prefix% &aHome establecido.");
+                clan.addHome(clanName, sender.getCoordinate());
+                sender.sendLang("home.set.success");
             }
             case "delete" -> {
                 if (!clan.isLader(uuid)) {
-                    sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+                    sender.sendLang("not-leader");
                     return;
                 }
 
                 Homes homes = clan.getHome(clanName);
                 if (homes == null) {
-                    sender.sendMessage("%prefix% &fNo se encontró la casa &e" + clanName + "&f.");
+                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", clanName));
                     return;
                 }
                 clan.removeHome(homes);
-                sender.sendMessage("%prefix% &aHome eliminado.");
+                sender.sendLang("home.delete.success");
             }
             case "tp" -> {
                 Homes homes = clan.getHome(clanName);
                 if (homes == null) {
-                    sender.sendMessage("%prefix% &fNo se encontró la casa &e" + clanName + "&f.");
+                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", clanName));
                     return;
                 }
 
@@ -84,25 +82,26 @@ public class HomeArgument implements CommandArgument {
                 try {
                     location = homes.getCoordinate().getLocation();
                 } catch (Exception e) {
-                    sender.sendMessage("%prefix% &cError: La ubicación del home no está configurada.");
+                    sender.sendLang("home.tp.invalid-location");
                     return;
                 }
 
                 if (location == null) {
-                    sender.sendMessage("%prefix% &cError: La ubicación del home no está configurada.");
+                    sender.sendLang("home.tp.invalid-location");
                     return;
                 }
 
-                PlayerTeleport.andRun(sender.getPlayer(), location, tm -> tm
-                        .setMessage("%prefix% &aHas sido teletransportado al home %name%!".replace("%name%", clanName))
+                PlayerTeleport teleport = PlayerTeleport.of(sender.getPlayer(), location)
+                        .setMessage(language.getString("clan","home.tp.success").replace("%home%", clanName))
                         .setSound(Sound.ENTITY_ENDERMAN_TELEPORT)
                         .setParticle(Particle.FLAME)
                         .setTeleportAnimation(TPAnimation.DOUBLE_SPIRAL)
                         .setDelayTicks(3)
                         .setNoDelayPermission("home.instant")
-                        .setMessageInTeleport("Teletransporte en %time% segundos...", "&aTeletransportado...")
-                        .setSoundInTeleport(Sound.ENTITY_PLAYER_LEVELUP)
-                        .teleportOf(() -> sender.sendMessage("%prefix% &cError: " + tm.getErrorMessage())));
+                        .setMessageInTeleport(language.getString("clan", "home.tp.teleporting"), language.getString("clan", "home.tp.teleported"))
+                        .setSoundInTeleport(Sound.ENTITY_PLAYER_LEVELUP);
+
+                teleport.teleportOf(() -> sender.sendMessage(language.getString("clan", "home.tp.error") + teleport.getErrorMessage()));
             }
         }
     }

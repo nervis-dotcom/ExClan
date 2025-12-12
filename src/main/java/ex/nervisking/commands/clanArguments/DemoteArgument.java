@@ -2,6 +2,7 @@ package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
 import ex.api.base.command.CommandArgument;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
@@ -11,29 +12,23 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 @CommandArg(name = "demote", description = "Demote a un jugador del clan.", permission = true)
-public class DemoteArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public DemoteArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record DemoteArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clan.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.lacksMinArgs(2)) {
-            sender.sendMessage("%prefix% &cDebes indicar un jugador y un rango.");
+            sender.sendLang("demote.usage");
             return;
         }
 
@@ -44,38 +39,38 @@ public class DemoteArgument implements CommandArgument {
         }
 
         if (sender.getUniqueId().equals(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo puedes demotear a ti mismo.");
+            sender.sendLang("demote.self");
             return;
         }
 
         if (clan.isLader(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo se le puede demotear al líder.");
+            sender.sendLang("demote.cannot-demote-leader");
             return;
         }
 
         if (!clan.hasMember(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
+            sender.sendLang("not-member");
             return;
         }
 
         Rank rank = Rank.fromString(args.get(1));
         if (rank == null) {
-            sender.sendMessage("%prefix% &cEl rango no es valido.");
+            sender.sendLang("demote.invalid-rank");
             return;
         }
 
         Rank rackMember = clan.getMemberRank(playerName.getUniqueId());
         if (rackMember == rank) {
-            sender.sendMessage("%prefix% &cEl jugador ya es de ese rango.");
+            sender.sendLang("demote.same-rank");
             return;
         }
 
         if (rank.getLevel() > rackMember.getLevel()) {
-            sender.sendMessage("%prefix% &cEl rango que intentas colocar al jugador es de un nivel mas alto de que tiene usa el argumento 'promote' si es lo que quieres hacer.");
+            sender.sendLang("demote.higher-rank");
             return;
         }
         clan.setMemberRank(playerName.getUniqueId(), rank);
-        sender.sendMessage("%prefix% &aJugador " + playerName.getName() + " demotado a: " + rank.getDisplayName() + ".");
+        sender.sendLang("demote.success", ParseVariable.adD("%player%", playerName.getName()).add("%rank%", rank.getDisplayName()));
     }
 
     @Override

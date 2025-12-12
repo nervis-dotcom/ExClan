@@ -18,11 +18,11 @@ public record IconArgument(ClanManager clanManager) implements CommandArgument {
         UUID uuid = sender.getUniqueId();
         Clan clanName = clanManager.getClan(uuid);
         if (clanName == null) {
-            sender.sendLang("no_clan");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clanName.isLader(uuid)) {
-            sender.sendLang("not_leader");
+            sender.sendLang("not-leader");
             return;
         }
 

@@ -1,48 +1,42 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;
 
 @CommandArg(name = "create", description = "Crea un clan nuevo.", permission = true)
-public class CreateArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public CreateArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record CreateArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes poner un nombre para el clan.");
+            sender.helpLang("no-name-clan");
             return;
         }
 
         UUID uuid = sender.getUniqueId();
         if (clanManager.isInClan(uuid)) {
-            sender.sendMessage("%prefix% &cYa estás en un clan.");
+            sender.sendLang("already-in-clan");
             return;
         }
 
         String clanName = args.get(0);
         if (clanManager.hasClan(clanName)) {
-            sender.sendMessage("%prefix% &cEl clan ya existe.");
+            sender.sendLang("create.exist");
             return;
         }
 
         if (utilsManagers.isValidText(clanName) || utilsManagers.hasColorCodes(clanName)) {
-            sender.sendMessage("%prefix% &cEl nombre no es valido.");
+            sender.sendLang("invalid-name");
             return;
         }
 
-        sender.sendMessage("%prefix% &a¡Clan '" + clanName + "' creado con éxito!");
+        sender.sendLang("create.success", ParseVariable.adD("%clan%", clanName));
+        utilsManagers.sendBroadcastMessage(language.getString("clan", "create.broadcast").replace("%clan%", clanName));
         clanManager.addClan(clanName, new Clan(clanName, sender.getName(), uuid));
-        utilsManagers.sendBroadcastMessage("&bSe a creado un nuevo clan '" + clanName + "'");
     }
 
     @Override

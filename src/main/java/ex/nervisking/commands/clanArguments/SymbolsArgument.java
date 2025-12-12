@@ -2,9 +2,9 @@ package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.Ex;
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.model.ServerVersion;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.gui.GuiText;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;
@@ -13,46 +13,40 @@ import ex.nervisking.models.Symbols;
 import java.util.Arrays;
 
 @CommandArg(name = "symbols", permission = true)
-public class SymbolsArgument implements CommandArgument {
-
-    private final ClanManager clanManager;
-
-    public SymbolsArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record SymbolsArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
-            sender.help("Usa /clan symbols <rank> <symbol>");
+            sender.helpLang("symbols.usage");
             return;
         }
 
         Rank rank = Rank.fromString(args.get(0));
         if (rank == null) {
-            sender.sendMessage("%prefix% &cEl rango no exite.");
+            sender.sendLang("symbols.invalid-rank");
             return;
         }
 
         Clan clan = clanManager.getClan(sender.getUniqueId());
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
         if (!clan.isLader(sender.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.hasMaxArgs(2)) {
             Symbols symbol = Symbols.fromString(args.get(1));
             if (symbol == null) {
-                sender.sendMessage("%prefix% &cEl símbolo no es válido.");
+                sender.sendLang("symbols.invalid-symbol");
                 return;
             }
             clan.setSymbols(rank, symbol);
-            sender.sendMessage("%prefix% &aHas cambiado el símbolo al rango " + rank.getDisplayName() + " por el símbolo " + symbol + ".");
+            sender.sendLang("symbols.changed", ParseVariable.adD("%rank%", rank.getDisplayName()).add("%symbol%", symbol.getSymbol()));
             return;
         }
 
@@ -60,13 +54,13 @@ public class SymbolsArgument implements CommandArgument {
             GuiText.open(sender.getPlayer(), (result, symbol) -> {
                 if (result) {
                     clan.setSymbols(rank, symbol);
-                    sender.sendMessage("%prefix% &aHas cambiado el símbolo al rango " + rank.getDisplayName() + " por el símbolo " + symbol.getSymbol() + ".");
+                    sender.sendLang("symbols.changed", ParseVariable.adD("%rank%", rank.getDisplayName()).add("%symbol%", symbol.getSymbol()));
                 } else {
-                    sender.sendMessage("%prefix% &cHas cancelado la acción.");
+                    sender.sendLang("symbols.canceled");
                 }
             });
         } else {
-            sender.help("Usa /clan symbols <rank> <symbol>");
+            sender.sendLang("symbols.gui-not-supported");
         }
     }
 

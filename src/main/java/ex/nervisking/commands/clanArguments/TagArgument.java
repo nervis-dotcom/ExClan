@@ -1,46 +1,40 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;
 
 @CommandArg(name = "tag", description = "Cambia el tag de tu clan.", permission = true)
-public class TagArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public TagArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record TagArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clanName = clanManager.getClan(uuid);
         if (clanName == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clanName.isLader(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.isEmpty()) {
-            sender.sendMessage("%prefix% &cDebes poner un tag para tu clan.");
+            sender.sendLang("tag.usage");
             return;
         }
 
         String tag = args.get(0);
         if (utilsManagers.isValidText(utilsManagers.removeColorCodes(tag), "^[a-zA-Z0-9_\\- &#]+$", 3, 100)) {
-            sender.sendMessage("%prefix% &cEl tag no es valido.");
+            sender.sendLang("tag.invalid-tag");
             return;
         }
 
-        sender.sendMessage("%prefix% &aTag cambiado a: " + tag);
+        sender.sendLang("tag.changed", ParseVariable.adD("%tag%", tag));
         clanName.setClanTag(tag);
     }
 

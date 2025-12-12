@@ -1,4 +1,206 @@
 messages:
+  no-permission: "%prefix% &cNo tienes permisos para usar este comando."
+  no-console: "%prefix% &c¡Solo los jugadores pueden usar este comando!"
+  invalidity-amount: "%prefix% &cDebes usar un número válido."
+  no-online: "%prefix% &cEl jugador &e%player% &cno está en línea."
+  never-connected: "%prefix% &cEl jugador &e%player% &cnunca se ha conectado."
+  help:
+    usage: "%prefix% &fComando: /%command%"
+    description: "&eDescripción: &f%description%"
+    aliases: "&eAlias: &f%aliases%"
+    permissions: "&ePermiso: &f%permission%"
   clan:
-    no_clan: "%prefix% &cNo estás en un clan."
-    not_leader: "%prefix% &cNo eres el líder del clan."
+    no-clan: "%prefix% &cNo estás en un clan."
+    not-leader: "%prefix% &cNo eres el líder del clan."
+    not-exist: "%prefix% &cNo existe el clan."
+    self: "%prefix% &cNo puedes unirte a tu mismo clan."
+    not-member: "%prefix% &cEl jugador no está en tu clan."
+    invalid-name: "%prefix% &cEl nombre no es valido."
+    no-name-clan: "%prefix% &cDebes colocar un nombre para el clan."
+    already-in-clan: "%prefix% &cYa estás en un clan."
+    invitation-expired: "%prefix% &cLa invitación ha expirado."
+
+    chat:
+      usage: "%prefix% &eUsa: &f/clan chat <clan/ally/off>"
+      clan: "%prefix% &aHas entrado al chat del clan."
+      ally: "%prefix% &aHas entrado al chat de los allies."
+      off: "%prefix% &aHas salido al chat global."
+
+    create:
+      exist: "%prefix% &cEl clan ya existe."
+
+      success: "%prefix% &a¡Clan '%clan%' creado con éxito!"
+      broadcast: "%prefix% &bSe ha creado un nuevo clan '%clan%'"
+
+    disband:
+
+      success: "%prefix% &cClan eliminado correctamente."
+      broadcast: "&bSe ha eliminado el clan '%clan%'."
+
+    delegate:
+      no-player: "%prefix% &cDebes colocar un jugador para delegar."
+
+      success: "%prefix% &aDelegado a: %player%. Ahora eres sublíder."
+      notify-members: "%prefix% &aEl clan tiene un nuevo líder: %player%."
+      discord: "El clan tiene un nuevo líder: %player%."
+
+    demote:
+      usage: "%prefix% &cDebes indicar un jugador y un rango."
+
+      self: "%prefix% &cNo puedes demotearte a ti mismo."
+      cannot-demote-leader: "%prefix% &cNo se le puede demotear al líder."
+
+      invalid-rank: "%prefix% &cEl rango no es valido."
+      same-rank: "%prefix% &cEl jugador ya es de ese rango."
+      higher-rank: "%prefix% &cEl rango que intentas colocar es más alto que el actual. Usa 'promote' si deseas ascenderlo."
+
+      success: "%prefix% &aJugador %player% demotado a: %rank%."
+
+    promote:
+      usage: "%prefix% &cDebes indicar un jugador y un rango."
+      self: "%prefix% &cNo puedes promotearte a ti mismo."
+      is-leader: "%prefix% &cNo se puede promover al líder."
+      invalid-rank: "%prefix% &cEl rango no es válido."
+      same-rank: "%prefix% &cEl jugador ya tiene ese rango."
+      lower-rank: "%prefix% &cEl rango indicado es inferior al que ya tiene. Usa 'demote' si deseas bajarlo de rango."
+      success: "%prefix% &aEl jugador %player% ha sido promovido a %rank%."
+
+    invite:
+      missing-player: "%prefix% &cDebes indicar un jugador para invitar."
+      already-in-clan: "%prefix% &cEl jugador ya está en un clan."
+      banned: "%prefix% &cEl jugador está baneado del clan."
+      already-invited: "%prefix% &cYa haz enviado una invitación al jugador para unirse al clan."
+      sent-to-player: "%prefix% &aTienes una nueva invitación para unirte al clan: &e%clan%&a."
+      sent-success: "%prefix% &aInvitación enviada a &e%player%&a."
+
+    ally:
+      usage: "%prefix% &eUsa: &f/clan ally <invite | joint | unally> <name>"
+      already-allies: "%prefix% &cYa son aliados."
+
+      invite:
+        already-sent: "%prefix% &cYa tienes una invitación para este clan."
+        sent: "%prefix% &aInvitación enviada a %clan%."
+        no-manager-online: "%prefix% &cNo hay un líder conectado que acepte tu invitación."
+
+      joint:
+        no-invite: "%prefix% &cNo tienes una invitación para este clan."
+        expired: "%prefix% &cLa invitación ha expirado."
+        success-sender: "%prefix% &aAhora sos aliado del clan: %clan%."
+        notify-owner: "%prefix% &aEl jugador %player% ha aceptado la invitación al clan."
+
+      unally:
+        not-ally: "%prefix% &cNo tienes una alianza con este clan."
+        removed: "%prefix% &aHas roto la alianza con el clan %clan%."
+
+    leave:
+      is-leader: "%prefix% &cNo puedes salir del clan siendo líder. Elimina el clan o delega a un nuevo líder."
+      success: "%prefix% &aHas salido del clan: %clan%."
+      notify-members: "%prefix% &aEl jugador %player% ha salido del clan."
+
+    join:
+      no-invite: "%prefix% &cNo tienes una invitación para este clan."
+      expired: "%prefix% &cLa invitación ha expirado."
+      banned: "%prefix% &cEstás baneado del clan."
+
+      success: "%prefix% &aHas ingresado al clan: %clan%."
+      notify-leader: "%prefix% &aEl jugador %player% ha aceptado la invitación al clan."
+
+    home:
+      usage: "%prefix% &eUsa: &f/clan <set | delete | tp> <home>"
+      not-found: "%prefix% &fNo se encontró la casa &e%home%&f."
+
+      set:
+        success: "%prefix% &aHome establecido."
+
+      delete:
+        success: "%prefix% &aHome eliminado."
+
+      tp:
+        invalid-location: "%prefix% &cError: La ubicación del home no está configurada."
+        success: "%prefix% &aHas sido teletransportado al home %home%!"
+        teleporting: "Teletransporte en %time% segundos..."
+        teleported: "&aTeletransportado..."
+        error: "%prefix% &cError: "
+
+    bank:
+      success: "%prefix% &aHas baneado al jugador: %player%"
+      usage: "%prefix% &eUsa: &f/clan bank <deposit | withdraw | balance>"
+      economy-disabled: "%prefix% &cEconomía no habilitada."
+
+      lock:
+        deposit: "%prefix% &cHay otra operación en curso."
+        withdraw: "%prefix% &cEl banco del clan está ocupado con otra operación."
+
+      deposit:
+        usage: "%prefix% &eUsa: &f/clan bank deposit <amount>"
+        invalid-amount: "%prefix% &cCantidad inválida."
+        not-enough-money: "%prefix% &cNo tienes suficiente dinero."
+        success: "%prefix% &aDepositaste %amount% al banco del clan. Nuevo balance: %new_balance%"
+
+      withdraw:
+        usage: "%prefix% &eUsa: &f/clan bank withdraw <amount>"
+        invalid-amount: "%prefix% &cEl monto debe ser mayor a 0."
+        not-enough-bank: "%prefix% &cEl banco del clan no tiene suficiente dinero."
+        success: "%prefix% &aRetiraste %amount%. Nueva cantidad del clan: %new_balance%"
+
+      balance:
+        show: "%prefix% &aEl banco del clan tiene $%amount%"
+
+    pvp:
+      usage: "%prefix% &eUsa: &f/clan pvp <clan | ally | only> <true/false>"
+      not-member: "%prefix% &cNo eres miembro del clan."
+
+      clan:
+        enabled: "%prefix% &aPVP del clan activado."
+        disabled: "%prefix% &cPVP del clan desactivado."
+
+      ally:
+        enabled: "%prefix% &aPVP con aliados activado."
+        disabled: "%prefix% &cPVP con aliados desactivado."
+
+      only:
+        enabled: "%prefix% &aPVP personal activado."
+        disabled: "%prefix% &cPVP personal desactivado."
+
+    symbols:
+      usage: "%prefix% &eUsa: &f/clan symbols <rank> <symbol>"
+
+      invalid-rank: "%prefix% &cEl rango no existe."
+      invalid-symbol: "%prefix% &cEl símbolo no es válido."
+
+      changed: "%prefix% &aHas cambiado el símbolo del rango &f%rank% &apor el símbolo &f%symbol%&a."
+      canceled: "%prefix% &cHas cancelado la acción."
+      gui-not-supported: "%prefix% &cEsta función no está disponible en esta versión. Usa: /clan symbols <rank> <symbol>"
+
+    tag:
+      usage: "%prefix% &eDebes poner un tag para tu clan."
+      invalid-tag: "%prefix% &cEl tag no es valido."
+      changed: "%prefix% &aTag cambiado a: %tag%"
+
+    webhooks:
+      usage: "%prefix% &aUsa /clan webhooks <add/remove/get>"
+      add_usage: "%prefix% &aUsa /clan webhooks add <link>"
+      no-clan: "%prefix% &cNo estás en un clan."
+      not-leader: "%prefix% &cNo eres líder del clan."
+      invalid-link: "%prefix% &cEl link no es valido."
+      added: "%prefix% &aLink agregado correctamente."
+      removed: "%prefix% &aLink removido correctamente."
+      no-link: "%prefix% &cNo hay link agregado."
+      get: "%prefix% &aLink: %link%"
+
+    ban:
+      usage: "%prefix% &eUsa: &f/clan ban <player>"
+
+      self-ban: "%prefix% &cNo puedes banearte a ti mismo."
+      already-banned: "%prefix% &cEste jugador ya está baneado."
+
+    unban:
+      usage: "%prefix% &eUsa: &f/clan unban <player>"
+      not-banned: "%prefix% &cEste jugador no está baneado."
+      success: "%prefix% &aHaz desbaneado al jugador: %player%"
+
+    kick:
+      no-player: "%prefix% &cDebes indicar un jugador para expulsar."
+
+      kicked: "%prefix% &cHas sido expulsado del clan."
+      notify-members: "%prefix% &aEl jugador %player% ha sido expulsado del clan por %sender%."

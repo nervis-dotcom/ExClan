@@ -1,6 +1,6 @@
 package ex.nervisking.manager;
 
-import ex.nervisking.models.Chat;
+import ex.nervisking.models.chat.Chat;
 
 import java.util.HashMap;
 import java.util.Map;

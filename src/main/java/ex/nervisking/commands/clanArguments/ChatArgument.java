@@ -4,7 +4,7 @@ import ex.api.base.command.*;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.manager.ChatManager;
-import ex.nervisking.models.Chat;
+import ex.nervisking.models.chat.Chat;
 
 import java.util.UUID;
 
@@ -22,29 +22,29 @@ public class ChatArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.isEmpty()) {
-            sender.help("Usa /clan chat <CLAN/ALLY/OFF>");
+            sender.helpLang("chat.usage");
             return;
         }
         UUID uuid = sender.getUniqueId();
         if (!clanManager.isInClan(uuid)) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
 
         switch (args.get(0).toUpperCase()) {
             case "CLAN" -> {
                 chatManager.setChat(uuid, Chat.CLAN);
-                sender.sendMessage("%prefix% &aHas entrado al chat del clan.");
+                sender.sendLang("chat.clan");
             }
             case "ALLY" -> {
                 chatManager.setChat(uuid, Chat.ALLY);
-                sender.sendMessage("%prefix% &aHas entrado al chat de los allies.");
+                sender.sendLang("chat.ally");
             }
             case "OFF" -> {
                 chatManager.removeChat(uuid);
-                sender.sendMessage("%prefix% &aHas salido al chat global.");
+                sender.sendLang("chat.off");
             }
-            default -> sender.help("Usa /clan chat <CLAN/ALLY/OFF>");
+            default -> sender.helpLang("chat.usage");
         }
     }
 

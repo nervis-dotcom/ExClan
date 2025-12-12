@@ -2,6 +2,7 @@ package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
 import ex.api.base.hook.VaultHook;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.manager.BankManager;
@@ -25,23 +26,23 @@ public class BankArgument implements CommandArgument {
         UUID uuid = sender.getUniqueId();
         Clan clanName = clanManager.getClan(uuid);
         if (clanName == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (args.isEmpty()) {
-            sender.help("Usa /clan bank <deposit | withdraw | balance>");
+            sender.helpLang("bank.usage");
             return;
         }
 
         if (!VaultHook.isEconomyEnabled()) {
-            sender.sendMessage("%prefix% &cEconomia no habilitada.");
+            sender.sendLang("economy-disabled");
             return;
         }
 
         switch (args.get(0).toLowerCase()) {
             case "deposit" -> {
                 if (args.lacksMinArgs(2)) {
-                    sender.help("Usa /clan bank deposit <amount>");
+                    sender.helpLang("bank.deposit.usage");
                     return;
                 }
 
@@ -52,16 +53,16 @@ public class BankArgument implements CommandArgument {
                     sender.invalidityAmount();
                     return;
                 }
-                clanBankLocks.depositToClan(sender.getPlayer(), clanName, amount);
+                clanBankLocks.depositToClan(sender, clanName, amount);
             }
             case "withdraw" -> {
                 if (!clanName.isManager(uuid)) {
-                    sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+                    sender.sendLang("not-leader");
                     return;
                 }
 
                 if (args.lacksMinArgs(2)) {
-                    sender.help("Usa /clan bank withdraw <amount>");
+                    sender.helpLang("bank.withdraw.usage");
                     return;
                 }
                 double amount;
@@ -71,14 +72,14 @@ public class BankArgument implements CommandArgument {
                     sender.invalidityAmount();
                     return;
                 }
-                clanBankLocks.withdrawFromClan(sender.getPlayer(), clanName, amount);
+                clanBankLocks.withdrawFromClan(sender, clanName, amount);
             }
             case "balance" -> {
                 if (!clanName.isManager(uuid)) {
-                    sender.sendMessage("%prefix% &cNo eres el líder del clan.");
+                    sender.sendLang("not-leader");
                     return;
                 }
-                sender.sendMessage("%prefix% &aEl banco del clan tiene $" + clanName.getBankDouble());
+                sender.sendLang("bank.balance.show", ParseVariable.neW().add("%amount%", clanName.getBankDouble()));
             }
         }
     }

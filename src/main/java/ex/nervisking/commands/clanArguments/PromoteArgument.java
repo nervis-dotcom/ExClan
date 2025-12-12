@@ -1,8 +1,8 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;
 import org.bukkit.OfflinePlayer;
@@ -10,29 +10,23 @@ import org.bukkit.OfflinePlayer;
 import java.util.UUID;
 
 @CommandArg(name = "promote", description = "Promueve a un jugador del clan.", permission = true)
-public class PromoteArgument implements CommandArgument {
-
-    public final ClanManager clanManager;
-
-    public PromoteArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-    }
+public record PromoteArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
         UUID uuid = sender.getUniqueId();
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
-            sender.sendMessage("%prefix% &cNo estás en un clan.");
+            sender.sendLang("no-clan");
             return;
         }
         if (!clan.isManager(uuid)) {
-            sender.sendMessage("%prefix% &cNo eres líder del clan.");
+            sender.sendLang("not-leader");
             return;
         }
 
         if (args.lacksMinArgs(2)) {
-            sender.sendMessage("%prefix% &cDebes indicar un jugador y un rango.");
+            sender.sendLang("promote.usage");
             return;
         }
 
@@ -43,39 +37,39 @@ public class PromoteArgument implements CommandArgument {
         }
 
         if (sender.getUniqueId().equals(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo puedes promotearte a ti mismo.");
+            sender.sendLang("promote.self");
             return;
         }
 
         if (clan.isLader(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cNo se le puede promotear al líder.");
+            sender.sendLang("promote.is-leader");
             return;
         }
 
         if (!clan.hasMember(playerName.getUniqueId())) {
-            sender.sendMessage("%prefix% &cEl jugador no está en tu clan.");
+            sender.sendLang("not-member");
             return;
         }
 
         Rank rank = Rank.fromString(args.get(1));
         if (rank == null) {
-            sender.sendMessage("%prefix% &cEl rango no es valido.");
+            sender.sendLang("promote.invalid-rank");
             return;
         }
 
         Rank rackMember = clan.getMemberRank(playerName.getUniqueId());
         if (rackMember == rank) {
-            sender.sendMessage("%prefix% &cEl jugador ya es de ese rango.");
+            sender.sendLang("promote.same-rank");
             return;
         }
 
         if (rank.getLevel() < rackMember.getLevel()) {
-            sender.sendMessage("%prefix% &cEl rango que intentas colocar al jugador es de un nivel mas bajo de que tiene usa el argumento 'demote' si es lo que quieres hacer.");
+            sender.sendLang("promote.lower-rank");
             return;
         }
 
         clan.setMemberRank(playerName.getUniqueId(), rank);
-        sender.sendMessage("%prefix% &aJugador " + playerName.getName() + " promovido a: " + rank.getDisplayName() + ".");
+        sender.sendLang("promote.success", ParseVariable.adD("%player%", playerName.getName()).add("%rank%", rank.getDisplayName()));
     }
 
     @Override

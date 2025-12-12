@@ -1,60 +1,61 @@
 package ex.nervisking.manager;
 
+import ex.api.base.command.Sender;
 import ex.api.base.hook.VaultHook;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.service.Service;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
-import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 
 public class BankManager extends Service<ExClan> {
 
     private final ClanBankLocks bankLocks = new ClanBankLocks();
 
-    public void depositToClan(Player player, @NotNull Clan clan, double amount) {
+    public void depositToClan(Sender sender, @NotNull Clan clan, double amount) {
         if (!bankLocks.tryLock(clan.getClanName())) {
-            sendMessage(player, "%prefix% &cHay otra operación en curso.");
+            sender.sendLang("bank.lock.deposit");
             return;
         }
 
         try {
             // Validar que el jugador tiene dinero
-            if (VaultHook.getBalance(player) < amount) {
-                sendMessage(player, "%prefix% &cNo tienes suficiente dinero.");
+            if (VaultHook.getBalance(sender.getPlayer()) < amount) {
+                sender.sendLang("bank.deposit.not-enough-money");
                 return;
             }
 
             // Retirar al jugador
-            VaultHook.removeMoney(player, amount);
+            VaultHook.removeMoney(sender.getPlayer(), amount);
 
             // Depositar atómico
             double newBalance = clan.depositDouble(amount);
 
-            sendMessage(player, "%prefix% &aDepositaste " + amount + " al banco del clan. Nuevo balance: " + newBalance);
+            sender.sendLang("bank.deposit.success", ParseVariable.neW().add("%amount%", amount).add("%new_balance%", newBalance));
         } finally {
             bankLocks.unlock(clan.getClanName());
         }
     }
 
-    public void withdrawFromClan(Player player, @NotNull Clan clan, double amount) {
+    public void withdrawFromClan(Sender sender, @NotNull Clan clan, double amount) {
         String name = clan.getClanName();
 
         // Evitar operaciones simultáneas
         if (!bankLocks.tryLock(name)) {
-            sendMessage(player, "%prefix% &cEl banco del clan está ocupado con otra operación.");
+            sender.sendLang("bank.lock.withdraw");
             return;
         }
 
         try {
             // Validación
             if (amount <= 0) {
-                sendMessage(player, "%prefix% &cEl monto debe ser mayor a 0.");
+                sender.sendLang("bank.withdraw.invalid-amount");
                 return;
             }
 
             // Validar que el clan tenga saldo
             if (clan.getBank() < amount) {
-                sendMessage(player, "%prefix% &cEl banco del clan no tiene suficiente dinero.");
+                sender.sendLang("bank.withdraw.not-enough-bank");
                 return;
             }
 
@@ -62,9 +63,9 @@ public class BankManager extends Service<ExClan> {
             double newBalance = clan.withdrawDouble(amount);
 
             // Dar al jugador
-            VaultHook.addMoney(player, amount);
+            VaultHook.addMoney(sender.getPlayer(), amount);
 
-            sendMessage(player, "%prefix% &aRetiraste " + amount + ". Nueva cantidad del clan: " + newBalance);
+            sender.sendLang("bank.withdraw.success", ParseVariable.neW().add("%amount%", amount).add("%new_balance%", newBalance));
         } finally {
             bankLocks.unlock(name);
         }
