@@ -1,9 +1,9 @@
 package ex.nervisking.commands.clanArguments;
 
-import ex.api.base.Ex;
 import ex.api.base.command.*;
+import ex.api.base.hook.ViaHook;
+import ex.api.base.model.ClientVersion;
 import ex.api.base.model.ParseVariable;
-import ex.api.base.model.ServerVersion;
 import ex.nervisking.ClanManager;
 import ex.nervisking.gui.GuiText;
 import ex.nervisking.models.Clan;
@@ -40,7 +40,7 @@ public record SymbolsArgument(ClanManager clanManager) implements CommandArgumen
         }
 
         if (args.hasMaxArgs(2)) {
-            Symbols symbol = Symbols.fromString(args.get(1));
+            Symbols symbol = Symbols.froSimbol(args.get(1));
             if (symbol == null) {
                 sender.sendLang("symbols.invalid-symbol");
                 return;
@@ -50,7 +50,7 @@ public record SymbolsArgument(ClanManager clanManager) implements CommandArgumen
             return;
         }
 
-        if (Ex.serverVersionGreaterEqualThan(ServerVersion.v1_21_R4)) {
+        if (ViaHook.isAtLeast(sender.getPlayer(), ClientVersion.v1_21_6)) {
             GuiText.open(sender.getPlayer(), (result, symbol) -> {
                 if (result) {
                     clan.setSymbols(rank, symbol);

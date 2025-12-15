@@ -16,6 +16,7 @@ public record BanArgument(ClanManager clanManager) implements CommandArgument {
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
             sender.helpLang("ban.usage");
+            return;
         }
 
         OfflinePlayer offlinePlayer = args.getOfflinePlayer(0);
@@ -37,6 +38,11 @@ public record BanArgument(ClanManager clanManager) implements CommandArgument {
 
         if (sender.getUniqueId().equals(offlinePlayer.getUniqueId())) {
             sender.sendLang("ban.self-ban");
+            return;
+        }
+
+        if (clan.isLader(offlinePlayer.getUniqueId())) {
+            sender.sendLang("ban.cannot-leader");
             return;
         }
 

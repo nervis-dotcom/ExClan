@@ -35,6 +35,16 @@ public record KickArgument(ClanManager clanManager) implements CommandArgument {
             return;
         }
 
+        if (sender.getUniqueId().equals(playerName.getUniqueId())) {
+            sender.sendLang("kick.self-ban");
+            return;
+        }
+
+        if (clan.isLader(playerName.getUniqueId())) {
+            sender.sendLang("kick.cannot-leader");
+            return;
+        }
+
         if (!clan.hasMember(playerName.getUniqueId())) {
             sender.sendLang("not-member");
             return;
@@ -45,7 +55,6 @@ public record KickArgument(ClanManager clanManager) implements CommandArgument {
         }
 
         clan.removeMember(playerName.getUniqueId());
-
         clan.getOnlineAll().forEach(member -> utilsManagers.sendMessage(member, language.getString("clan", "kick.notify-members")
                 .replace("%player%", playerName.getName())
                 .replace("%sender%", sender.getName())));
@@ -56,7 +65,7 @@ public record KickArgument(ClanManager clanManager) implements CommandArgument {
         if (args.has(1)) {
             Clan clan = clanManager.getClan(sender.getUniqueId());
             if (clan != null) {
-                completions.add(clan.getOnlineAll().stream().map(Player::getName).toList());
+                completions.add(clan.getOnlineAll().stream().map(Player::getName).filter(s -> !s.equals(sender.getName())).toList());
             }
         }
         return completions;

@@ -26,7 +26,7 @@ public class JoinArgument implements CommandArgument {
     @Override
     public void execute(Sender sender, Arguments args) {
         if (args.isEmpty()) {
-            sender.helpLang("no-name-clan");
+            sender.helpLang("no-name");
             return;
         }
 

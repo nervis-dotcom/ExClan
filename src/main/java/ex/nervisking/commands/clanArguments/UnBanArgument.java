@@ -14,6 +14,7 @@ public record UnBanArgument(ClanManager clanManager) implements CommandArgument 
     public void execute(Sender sender, Arguments args) {
         if (args.lacksMinArgs(1)) {
             sender.helpLang("unban.usage");
+            return;
         }
 
         OfflinePlayer offlinePlayer = args.getOfflinePlayer(0);

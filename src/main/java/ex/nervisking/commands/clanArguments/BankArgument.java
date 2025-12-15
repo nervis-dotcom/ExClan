@@ -35,7 +35,7 @@ public class BankArgument implements CommandArgument {
         }
 
         if (!VaultHook.isEconomyEnabled()) {
-            sender.sendLang("economy-disabled");
+            sender.sendLang("bank.economy-disabled");
             return;
         }
 

@@ -4,7 +4,6 @@ import ex.api.base.command.*;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;
 import org.bukkit.OfflinePlayer;

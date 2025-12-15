@@ -4,6 +4,7 @@ import ex.api.base.command.Arguments;
 import ex.api.base.command.CommandArg;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.command.Sender;
+import ex.api.base.model.ParseVariable;
 import ex.nervisking.ClanManager;
 import ex.nervisking.models.Clan;
 
@@ -28,7 +29,7 @@ public record ChestArgument(ClanManager clanManager) implements CommandArgument 
         try {
             clanName.getChest().openSharedChest(sender.getPlayer());
         } catch (Exception e) {
-            sender.sendMessage("%prefix% &cError al abrir el chest.");
+            sender.sendLang("error", ParseVariable.adD("%error%", e.getMessage()));
         }
     }
 }

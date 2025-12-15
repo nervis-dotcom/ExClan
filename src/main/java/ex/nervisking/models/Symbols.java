@@ -63,4 +63,13 @@ public enum Symbols {
         }
         return null;
     }
+
+    public static @Nullable Symbols froSimbol(String name) {
+        for (Symbols symbol : Symbols.values()) {
+            if (symbol.getSymbol().equalsIgnoreCase(name)) {
+                return symbol;
+            }
+        }
+        return null;
+    }
 }

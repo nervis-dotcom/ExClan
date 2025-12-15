@@ -16,9 +16,10 @@ messages:
     self: "%prefix% &cNo puedes unirte a tu mismo clan."
     not-member: "%prefix% &cEl jugador no está en tu clan."
     invalid-name: "%prefix% &cEl nombre no es valido."
-    no-name-clan: "%prefix% &cDebes colocar un nombre para el clan."
+    no-name: "%prefix% &cDebes colocar un nombre."
     already-in-clan: "%prefix% &cYa estás en un clan."
     invitation-expired: "%prefix% &cLa invitación ha expirado."
+    error: "%prefix% &cError: %error%"
 
     chat:
       usage: "%prefix% &eUsa: &f/clan chat <clan/ally/off>"
@@ -33,7 +34,6 @@ messages:
       broadcast: "%prefix% &bSe ha creado un nuevo clan '%clan%'"
 
     disband:
-
       success: "%prefix% &cClan eliminado correctamente."
       broadcast: "&bSe ha eliminado el clan '%clan%'."
 
@@ -170,7 +170,7 @@ messages:
 
       changed: "%prefix% &aHas cambiado el símbolo del rango &f%rank% &apor el símbolo &f%symbol%&a."
       canceled: "%prefix% &cHas cancelado la acción."
-      gui-not-supported: "%prefix% &cEsta función no está disponible en esta versión. Usa: /clan symbols <rank> <symbol>"
+      gui-not-supported: "%prefix% &cEsta función no está disponible para tu versión de mc. Usa: /clan symbols <rank> <symbol>"
 
     tag:
       usage: "%prefix% &eDebes poner un tag para tu clan."
@@ -191,8 +191,10 @@ messages:
     ban:
       usage: "%prefix% &eUsa: &f/clan ban <player>"
 
+      cannot-leader: "%prefix% &cNo se le puede banear al líder."
       self-ban: "%prefix% &cNo puedes banearte a ti mismo."
       already-banned: "%prefix% &cEste jugador ya está baneado."
+      success: "%prefix% &aHaz baneado al jugador: %player%"
 
     unban:
       usage: "%prefix% &eUsa: &f/clan unban <player>"
@@ -201,6 +203,9 @@ messages:
 
     kick:
       no-player: "%prefix% &cDebes indicar un jugador para expulsar."
+
+      self-ban: "%prefix% &cNo puedes expulsarte a ti mismo."
+      cannot-leader: "%prefix% &cNo se le puede expulsar al líder."
 
       kicked: "%prefix% &cHas sido expulsado del clan."
       notify-members: "%prefix% &aEl jugador %player% ha sido expulsado del clan por %sender%."
