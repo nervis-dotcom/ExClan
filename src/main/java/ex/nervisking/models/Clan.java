@@ -3,15 +3,18 @@ package ex.nervisking.models;
 import ex.api.base.gui.Row;
 import ex.api.base.gui.trunk.VirtualChest;
 import ex.api.base.model.Coordinate;
+import ex.nervisking.models.chat.Chat;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.*;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Clan {
 
-    private Lader lader;
+    private Leader leader;
     private final String clanName;
     private final List<Member> members;
     private final Set<UUID> bannedMembers;
@@ -29,9 +32,9 @@ public class Clan {
     private boolean pvp;
     private boolean pvpAlly;
 
-    public Clan(String clanName, String clanTag, String leaderName, UUID laderUuid, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, List<Homes> homes, int points, int kills, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols, Map<Integer, ItemStack> chestItems, ItemStack icon) {
+    public Clan(String clanName, String clanTag, Leader leader, List<Member> members, Set<UUID> bannedMembers, Set<String> allys, List<Homes> homes, int points, int kills, String description, String discord, boolean pvp, boolean pvpAlly, Map<Rank, Symbols> symbols, Map<Integer, ItemStack> chestItems, ItemStack icon) {
         this.clanName = clanName;
-        this.lader = new Lader(laderUuid, leaderName);
+        this.leader = leader;
         this.members = members;
         this.bannedMembers = bannedMembers;
         this.allys = allys;
@@ -49,13 +52,13 @@ public class Clan {
     }
 
     public Clan(String clanName, String leaderName, UUID laderUuid) {
-        this(clanName, clanName, leaderName, laderUuid, new ArrayList<>(), new HashSet<>(), new HashSet<>(), new ArrayList<>(), 0, 0, null, null, true, true, Rank.getSymbols(), new HashMap<>(), null);
+        this(clanName, clanName, new Leader(laderUuid, leaderName, Chat.NONE, false), new ArrayList<>(), new HashSet<>(), new HashSet<>(), new ArrayList<>(), 0, 0, null, null, true, true, Rank.getSymbols(), new HashMap<>(), null);
     }
 
-    public void setDelegate(UUID uuid, String name) {
-        this.lader = new Lader(uuid, name);
-        this.removeMember(uuid);
-        this.addMember(uuid, Rank.SUB_LEADER);
+    public void setDelegate(@NotNull Member member, String name) {
+        this.addMember(leader.getUuid(), Rank.SUB_LEADER);
+        this.leader = new Leader(member.getUuid(), name, member.getChat(), member.isPvp());
+        this.removeMember(member.getUuid());
     }
 
     public String getClanName() {
@@ -70,8 +73,8 @@ public class Clan {
         this.clanTag = clanTag;
     }
 
-    public Lader getLader() {
-        return lader;
+    public Leader getLader() {
+        return leader;
     }
 
     public String getLeaderName() {
@@ -83,11 +86,11 @@ public class Clan {
     }
 
     public void upateName(String name) {
-        this.lader.setName(name);
+        this.leader.setName(name);
     }
 
     public boolean isLader(UUID uuid) {
-        return this.lader.getUuid().equals(uuid);
+        return this.leader.getUuid().equals(uuid);
     }
 
     public boolean isManager(UUID uuid) {
@@ -95,7 +98,7 @@ public class Clan {
     }
 
     public boolean isManagerOnline() {
-        if (lader.isOnline()) {
+        if (leader.isOnline()) {
             return true;
         }
         for (var member : this.members) {
@@ -131,10 +134,10 @@ public class Clan {
     }
 
     public Member getMember(UUID uuid) {
-        Member rank = null;
         if (this.isLader(uuid)) {
-            return lader;
+            return leader;
         }
+        Member rank = null;
         for (var member : this.members) {
             if (member.getUuid().equals(uuid)) {
                 rank = member;
@@ -149,7 +152,7 @@ public class Clan {
     }
 
     public void addMember(UUID member, Rank rank) {
-        this.members.add(new Member(member, rank));
+        this.members.add(new Member(member, rank, Chat.NONE, false));
     }
 
     public void removeMember(UUID member) {
@@ -211,7 +214,7 @@ public class Clan {
                 members.add(player);
             }
         }
-        Player player = lader.getPlayer();
+        Player player = leader.getPlayer();
         if (player != null && player.isOnline()) {
             members.add(player);
         }
@@ -360,7 +363,16 @@ public class Clan {
     }
 
     public void addHome(String name, Coordinate coordinate) {
-        this.homes.add(new Homes(name, "FIREWORK_STAR", coordinate));
+        this.homes.add(new Homes(name, Material.FIREWORK_STAR, coordinate));
+    }
+
+    public boolean hasHome(String name) {
+        for (Homes h : homes) {
+            if (h.getName().equalsIgnoreCase(name)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     public void removeHome(Homes home) {
@@ -371,6 +383,10 @@ public class Clan {
         return homes;
     }
 
+    public int getHomeAmount() {
+        return homes.size();
+    }
+
     public Homes getHome(String s) {
         for (Homes h : homes) {
             if (h.getName().equals(s)) {
@@ -378,5 +394,27 @@ public class Clan {
             }
         }
         return null;
+    }
+
+    public void setChat(UUID uuid, Chat chat) {
+        for (Member member : this.members) {
+            if (member.getUuid().equals(uuid)) {
+                member.setChat(chat);
+                break;
+            }
+        }
+    }
+
+    public Chat getChat(UUID uuid) {
+        for (var member : members) {
+            if (member.getUuid().equals(uuid)) {
+                return member.getChat();
+            }
+        }
+        return Chat.NONE;
+    }
+
+    public boolean hasChat(UUID uuid) {
+        return getChat(uuid) != Chat.NONE;
     }
 }

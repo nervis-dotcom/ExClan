@@ -6,6 +6,7 @@ import ex.api.base.gui.Row;
 import ex.api.base.item.ItemBuilder;
 import ex.api.base.item.RDMaterial;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.gui.ConfigHomeIcon;
 import ex.nervisking.models.Homes;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,10 +17,12 @@ import java.util.List;
 
 public class HomeIconMenu extends MenuPages<ExClan> {
 
+    private final ConfigHomeIcon configHomeIcon;
     private final Homes homes;
 
     public HomeIconMenu(Player player, Homes homes) {
         super(player);
+        this.configHomeIcon = plugin.getConfigHomeIcon();
         this.homes = homes;
     }
 
@@ -27,11 +30,10 @@ public class HomeIconMenu extends MenuPages<ExClan> {
     public List<ItemStack> addDataItems() {
         List<ItemStack> items = new ArrayList<>();
         for (Material entry : RDMaterial.DYE.getMaterials()) {
-            ItemStack itemStack = new ItemBuilder(entry).setHideTooltip().build();
-            if (itemStack.getType().name().equals(homes.getIcon())) {
-                itemStack = new ItemBuilder(entry)
+            ItemStack itemStack = configHomeIcon.getItem(ConfigHomeIcon.DataItem.ICONS).getItemBuilder(player, entry).build();
+            if (itemStack.getType().equals(homes.getIcon())) {
+                itemStack = configHomeIcon.getItem(ConfigHomeIcon.DataItem.ICONS).getItemBuilder(player, entry)
                         .setGlintOverride()
-                        .setHideTooltip()
                         .build();
             }
             items.add(itemStack);
@@ -41,62 +43,71 @@ public class HomeIconMenu extends MenuPages<ExClan> {
     }
 
     @Override
-    public List<Integer> setSlots() {
-        return List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
-    }
-
-    @Override
-    public void buildItems() {
-        this.setItemFilter(new ItemBuilder(ItemBuilder.GRAY).setHideTooltip());
-        this.setItem(new ItemBuilder(ItemBuilder.BLACK).setHideTooltip(), List.of(45, 46, 47, 48, 49, 50, 51, 52, 53));
-
-        this.fill(new ItemBuilder(ItemBuilder.WHITE).setHideTooltip());
-
-        if (this.hasBack()) {
-            this.setItem(48, new ItemBuilder(ItemBuilder.BACK).setName("&fPagina Anterior"));
-        }
-
-        this.setItem(49, new ItemBuilder(ItemBuilder.CLOSE).setName("&fCerrar"));
-
-        if (this.hasNext()) {
-            this.setItem(50, new ItemBuilder(ItemBuilder.AFTER).setName("&fSiguiente Pagina"));
-        }
-    }
-
-    @Override
     public String setName() {
-        return "&fIconos";
+        return configHomeIcon.getTitle();
     }
 
     @Override
     public Row setRows() {
-        return Row.CHESTS_54;
+        return Row.fromSize(configHomeIcon.getRows());
+    }
+
+    @Override
+    public List<Integer> setSlots() {
+        return configHomeIcon.getSlots();
+    }
+
+    @Override
+    public void buildItems() {
+        for (var itemData : configHomeIcon.getOtherItems()) {
+            this.setItem(itemData.getSlot(), itemData.getItemBuilder(player));
+        }
+        for (var entry : configHomeIcon.getDefaultItems().entrySet()) {
+            ItemBuilder itemBuilder = entry.getValue().getItemBuilder(player);
+
+            if (entry.getKey() == ConfigHomeIcon.DataItem.PREVIOUS_PAGE) {
+                this.setItem(entry.getValue().getSlot(), itemBuilder);
+            } else if (entry.getKey() == ConfigHomeIcon.DataItem.HIDE) {
+                this.fill(itemBuilder);
+            } else {
+                this.setItem(entry.getValue().getSlot(), itemBuilder);
+            }
+        }
     }
 
     @Override
     public void handleMenu(MenuEvent event) {
         Player player = event.getPlayer();
         int slot = event.getSlot();
-        ItemStack clickedItem = event.getCurrentItem();
-
-        if (clickedItem == null) return;
-
-        if (slot == 47) {
-            this.firstPage();
-        } else if (slot == 48) {
-            this.prevPage();
-        } else if (slot == 49) {
-            player.closeInventory();
-        } else if (slot == 50) {
-            this.nextPage();
-        } else if (slot == 51) {
-            this.lastPage();
-            return;
-        }
 
         if (getSlotIndex(slot)) {
-            homes.setIcon(clickedItem.getType().name());
+            ItemStack clickedItem = event.getCurrentItem();
+
+            if (clickedItem == null) return;
+            homes.setIcon(clickedItem.getType());
             back();
+        } else if (get(slot) != null) {
+            switch (get(slot)) {
+                case CLOSE -> this.closeInventory();
+                case PREVIOUS_PAGE -> this.back();
+                default -> {}
+            }
+        } else {
+            for (var itemData : configHomeIcon.getOtherItems()) {
+                if (itemData.getSlot(slot) && itemData.hasActions()) {
+                    executeActions(player, itemData.getActions());
+                    break;
+                }
+            }
         }
+    }
+
+    public ConfigHomeIcon.DataItem get(int slot) {
+        for (var entry : configHomeIcon.getDefaultItems().entrySet()) {
+            if (entry.getValue().getSlot(slot)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }

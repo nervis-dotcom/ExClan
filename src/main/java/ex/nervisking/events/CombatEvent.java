@@ -1,7 +1,7 @@
 package ex.nervisking.events;
 
 import ex.api.base.event.Event;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.MainConfig;
 import ex.nervisking.manager.WarManager;

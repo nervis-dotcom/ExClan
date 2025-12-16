@@ -108,8 +108,10 @@ messages:
     home:
       usage: "%prefix% &eUsa: &f/clan <set | delete | tp> <home>"
       not-found: "%prefix% &fNo se encontró la casa &e%home%&f."
+      max-homes: "%prefix% &cHas llegado al límite de casas."
 
-      set:
+      add:
+        already-exists: "%prefix% &cYa existe una casa con ese nombre."
         success: "%prefix% &aHome establecido."
 
       delete:
@@ -120,7 +122,7 @@ messages:
         success: "%prefix% &aHas sido teletransportado al home %home%!"
         teleporting: "Teletransporte en %time% segundos..."
         teleported: "&aTeletransportado..."
-        error: "%prefix% &cError: "
+        error: "%prefix% &cError: %error%"
 
     bank:
       success: "%prefix% &aHas baneado al jugador: %player%"
@@ -209,3 +211,8 @@ messages:
 
       kicked: "%prefix% &cHas sido expulsado del clan."
       notify-members: "%prefix% &aEl jugador %player% ha sido expulsado del clan por %sender%."
+
+    icon:
+      removed: "%prefix% &aHas quitado el icono del clan."
+      set: "%prefix% &aHas puesto el icono del clan."
+      invalid-item: "%prefix% &cEl icono debe ser un banner."

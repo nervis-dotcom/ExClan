@@ -1,5 +1,6 @@
 package ex.nervisking.models;
 
+import ex.nervisking.models.chat.Chat;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
@@ -13,11 +14,13 @@ public class Member {
     private final UUID uuid;
     private Rank rank;
     private boolean pvp;
+    private Chat chat;
 
-    public Member(UUID uuid, Rank rank) {
+    public Member(UUID uuid, Rank rank, Chat chat, boolean pvp) {
         this.uuid = uuid;
         this.rank = rank;
-        this.pvp = true;
+        this.chat = chat;
+        this.pvp = pvp;
     }
 
     public UUID getUuid() {
@@ -56,5 +59,13 @@ public class Member {
 
     public void setPvp(boolean pvp) {
         this.pvp = pvp;
+    }
+
+    public Chat getChat() {
+        return chat;
+    }
+
+    public void setChat(Chat chat) {
+        this.chat = chat;
     }
 }

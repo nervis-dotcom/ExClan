@@ -4,7 +4,7 @@ import ex.api.base.command.*;
 import ex.api.base.hook.ViaHook;
 import ex.api.base.model.ClientVersion;
 import ex.api.base.model.ParseVariable;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.gui.GuiText;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;
@@ -51,7 +51,7 @@ public record SymbolsArgument(ClanManager clanManager) implements CommandArgumen
         }
 
         if (ViaHook.isAtLeast(sender.getPlayer(), ClientVersion.v1_21_6)) {
-            GuiText.open(sender.getPlayer(), (result, symbol) -> {
+            GuiText.openSimbolo(sender.getPlayer(), (result, symbol) -> {
                 if (result) {
                     clan.setSymbols(rank, symbol);
                     sender.sendLang("symbols.changed", ParseVariable.adD("%rank%", rank.getDisplayName()).add("%symbol%", symbol.getSymbol()));

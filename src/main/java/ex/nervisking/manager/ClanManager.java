@@ -1,4 +1,4 @@
-package ex.nervisking;
+package ex.nervisking.manager;
 
 import ex.nervisking.models.Clan;
 import org.bukkit.entity.Player;

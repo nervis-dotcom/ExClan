@@ -1,13 +1,12 @@
 package ex.nervisking.gui.homes;
 
-import ex.api.base.gui.ItemDataMenu;
-import ex.api.base.gui.MenuEvent;
-import ex.api.base.gui.MenuPages;
-import ex.api.base.gui.Row;
+import ex.api.base.gui.*;
 import ex.api.base.item.ItemBuilder;
+import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.PlayerTeleport;
-import ex.api.base.utils.teleport.TPAnimation;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.MainConfig;
+import ex.nervisking.config.gui.ConfigHome;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Homes;
 import org.bukkit.*;
@@ -21,29 +20,44 @@ import java.util.List;
 
 public class HomeMenu extends MenuPages<ExClan> {
 
+    private final ConfigHome configHome;
+    private final MainConfig config;
     private final Clan clan;
     private final NamespacedKey key;
 
     public HomeMenu(Player player, Clan clan) {
         super(player);
+        this.configHome = plugin.getConfigHome();
+        this.config = plugin.getMainConfig();
         this.clan = clan;
         this.key = new NamespacedKey(plugin, "homes");
+    }
+
+    @Override
+    public String setSection() {
+        return "clan";
+    }
+
+    @Override
+    public String setName() {
+        return configHome.getTitle();
+    }
+
+    @Override
+    public Row setRows() {
+        return Row.fromSize(configHome.getRows());
+    }
+
+    @Override
+    public List<Integer> setSlots() {
+        return configHome.getSlots();
     }
 
     @Override
     public List<ItemStack> addDataItems() {
         List<ItemStack> items = new ArrayList<>();
         for (var entry : clan.getHomes()) {
-            ItemStack itemStack = new ItemBuilder(entry.getIcon())
-                    .setName("&fHome: &e" + entry.getName())
-                    .setLore("",
-                            "&8&m                                                        &r",
-                            "&7Click izquierdo para cambiar el icono del home.",
-                            "&7Click derecho para ir a ese home.",
-                            "&7Click-SHIFT izquierdo para borrar este home.",
-                            "&8&m                                                        &r",
-                            "")
-                    .setHideAll()
+            ItemStack itemStack = configHome.getItem(ConfigHome.DataItem.HOMES).getItemBuilder(entry.getIcon(), ParseVariable.adD("%name%", entry.getName()))
                     .setPersistentData(key, PersistentDataType.STRING, entry.getName())
                     .build();
             items.add(itemStack);
@@ -53,55 +67,41 @@ public class HomeMenu extends MenuPages<ExClan> {
     }
 
     @Override
-    public List<Integer> setSlots() {
-        return List.of(10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 28, 29, 30, 31, 32, 33, 34, 37, 38, 39, 40, 41, 42, 43);
-    }
-
-    @Override
     public void buildItems() {
-        this.setItemFilter(new ItemBuilder(ItemBuilder.GRAY).setHideTooltip());
-        this.setItem(new ItemBuilder(ItemBuilder.BLACK).setHideTooltip(), List.of(45, 46, 47, 48, 49, 50, 51, 52, 53));
-
-
-        this.fill(new ItemBuilder(Material.WHITE_STAINED_GLASS_PANE).setHideTooltip());
-
-        if (this.hasBack()) {
-            this.setItem(48, new ItemBuilder(ItemBuilder.BACK).setName("&fPagina Anterior"));
+        for (var itemData : configHome.getOtherItems()) {
+            this.setItem(itemData.getSlot(), itemData.getItemBuilder(player));
         }
+        for (var entry : configHome.getDefaultItems().entrySet()) {
+            ItemBuilder itemBuilder = entry.getValue().getItemBuilder(player);
 
-        this.setItem(49, new ItemBuilder(ItemBuilder.CLOSE).setName("&fCerrar"));
-
-        if (this.hasNext()) {
-            this.setItem(50, new ItemBuilder(ItemBuilder.AFTER).setName("&fSiguiente Pagina"));
+            if (entry.getKey() == ConfigHome.DataItem.PREVIOUS_PAGE) {
+                if (this.hasBack()) {
+                    this.setItem(entry.getValue().getSlot(), itemBuilder);
+                }
+            } else if (entry.getKey() == ConfigHome.DataItem.NEXT_PAGE) {
+                if (this.hasNext()) {
+                    this.setItem(entry.getValue().getSlot(), itemBuilder);
+                }
+            } else if (entry.getKey() == ConfigHome.DataItem.HIDE) {
+                this.fill(itemBuilder);
+            } else {
+                this.setItem(entry.getValue().getSlot(), itemBuilder);
+            }
         }
-    }
-
-    @Override
-    public String setName() {
-        return "&fHomes";
-    }
-
-    @Override
-    public Row setRows() {
-        return Row.CHESTS_54;
     }
 
     @Override
     public void handleMenu(MenuEvent event) {
-        Player player = event.getMenuUser().getPlayer();
+        Player player = event.getPlayer();
+        MenuUser menuUser = event.getMenuUser();
         int slot = event.getSlot();
 
-        if (slot == 47) {
-            this.firstPage();
-        } else if (slot == 48) {
+        if (slot == 48) {
             this.prevPage();
         } else if (slot == 49) {
             player.closeInventory();
         } else if (slot == 50) {
             this.nextPage();
-        } else if (slot == 51) {
-            this.lastPage();
-            return;
         }
 
         if (getSlotIndex(slot)) {
@@ -121,41 +121,60 @@ public class HomeMenu extends MenuPages<ExClan> {
             if (event.getClick() == ClickType.RIGHT) {
                 Location loc = home.getCoordinate().getLocation();
                 if (loc == null) {
-                    sendMessage(player, "%prefix% &cError: La ubicación del home no está configurada.");
+                    menuUser.sendLang("home.tp.invalid-location");
                     return;
                 }
 
-                PlayerTeleport tm = new PlayerTeleport(player, loc)
-                        .setMessage("%prefix% &aHas sido teletransportado al home %name%!".replace("%name%", name))
-                        .setSound(Sound.ENTITY_ENDERMAN_TELEPORT)
-                        .setParticle(Particle.FLAME)
-                        .setTeleportAnimation(TPAnimation.DOUBLE_SPIRAL)
-                        .setDelayTicks(3)
-                        .setNoDelayPermission("home.instant")
-                        .setMessageInTeleport("Teletransporte en %time% segundos...", "&aTeletransportado...")
-                        .setSoundInTeleport(Sound.ENTITY_PLAYER_LEVELUP);
-                tm.teleportOf(
-                        player::closeInventory,
-                        () -> {
-                            sendMessage(player, "%prefix% &cError: " + tm.getErrorMessage());
-                            player.closeInventory();
-                        }
-                );
+                PlayerTeleport teleport = PlayerTeleport.of(player, loc)
+                        .setMessage(language.getString("clan","home.tp.success").replace("%home%", home.getName()))
+                        .setSound(config.getSound())
+                        .setParticle(config.getParticle())
+                        .setTeleportAnimation(config.getAnimation())
+                        .setDelayTicks(config.getDelayTeleport())
+                        .setNoDelayPermission(config.getPermissionBypass())
+                        .setMessageInTeleport(language.getString("clan", "home.tp.teleporting"), language.getString("clan", "home.tp.teleported"))
+                        .setSoundInTeleport(config.getSoundInTeleport());
+
+                teleport.teleportOf(this::closeInventory, () -> {this.closeInventory();menuUser.sendLang("home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage()));});
+
             } else if (event.getClick() == ClickType.LEFT) {
                 if (!clan.isLader(player.getUniqueId())) {
-                    sendMessage(player, "%prefix% &cNo eres el líder del clan.");
+                    menuUser.sendLang("not-leader");
                     return;
                 }
                 openMenu(new HomeIconMenu(player, home));
             } else if (event.getClick() == ClickType.SHIFT_LEFT) {
                 if (!clan.isLader(player.getUniqueId())) {
-                    sendMessage(player, "%prefix% &cNo eres el líder del clan.");
+                    menuUser.sendLang("not-leader");
                     return;
                 }
                 clan.removeHome(home);
-                sendMessage(player, "%prefix% &a¡Has eliminado el home %name%!".replace("%name%", name));
+                menuUser.sendLang("home.delete.success", ParseVariable.adD("%name%", name));
                 refreshData();
             }
+        } else if (get(slot) != null) {
+            switch (get(slot)) {
+                case CLOSE -> this.closeInventory();
+                case NEXT_PAGE -> this.nextPage();
+                case PREVIOUS_PAGE -> this.prevPage();
+                default -> {}
+            }
+        } else {
+            for (var itemData : configHome.getOtherItems()) {
+                if (itemData.getSlot(slot) && itemData.hasActions()) {
+                    executeActions(player, itemData.getActions());
+                    break;
+                }
+            }
         }
+    }
+
+    public ConfigHome.DataItem get(int slot) {
+        for (var entry : configHome.getDefaultItems().entrySet()) {
+            if (entry.getValue().getSlot(slot)) {
+                return entry.getKey();
+            }
+        }
+        return null;
     }
 }

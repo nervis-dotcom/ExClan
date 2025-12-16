@@ -2,7 +2,7 @@ package ex.nervisking.hook;
 
 import ex.api.base.hook.PlaceholderApiHook;
 import ex.api.base.placeholder.Identifier;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Rank;

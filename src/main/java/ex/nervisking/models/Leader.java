@@ -1,13 +1,15 @@
 package ex.nervisking.models;
 
+import ex.nervisking.models.chat.Chat;
+
 import java.util.UUID;
 
-public class Lader extends Member {
+public class Leader extends Member {
 
     private String name;
 
-    public Lader(UUID uuid, String name) {
-        super(uuid, Rank.LEADER);
+    public Leader(UUID uuid, String name, Chat chat, boolean pvp) {
+        super(uuid, Rank.LEADER, chat, pvp);
         this.name = name;
     }
 

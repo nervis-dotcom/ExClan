@@ -10,10 +10,12 @@ import ex.api.base.language.LanguageService;
 import ex.api.base.model.CustomColor;
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
+import ex.nervisking.config.gui.ConfigHome;
+import ex.nervisking.config.gui.ConfigHomeIcon;
 import ex.nervisking.events.ChatEvent;
 import ex.nervisking.hook.Papi;
 import ex.nervisking.manager.BankManager;
-import ex.nervisking.manager.ChatManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.manager.WarManager;
 import ex.nervisking.manager.RequestInvite;
 import ex.nervisking.commands.ClanCommand;
@@ -34,10 +36,12 @@ public class ExClan extends ExPlugin {
 
     private ClanManager clanManager;
     private RequestInvite requestInvite;
-    private ChatManager chatManager;
     private BankManager bankManager;
 
     private Language language;
+
+    private ConfigHome configHome;
+    private ConfigHomeIcon configHomeIcon;
 
     @Override
     public String setPrefix() {
@@ -74,9 +78,12 @@ public class ExClan extends ExPlugin {
         this.dataConfig = new DataConfig();
 
         this.requestInvite = new RequestInvite();
-        this.chatManager = new ChatManager();
         this.bankManager = new BankManager();
         this.warManager = new WarManager();
+
+        // Configs Gui
+        this.configHome = new ConfigHome();
+        this.configHomeIcon = new ConfigHomeIcon();
 
         // Comando
         this.register(new CommandMain(this));
@@ -102,6 +109,7 @@ public class ExClan extends ExPlugin {
         if (dataConfig != null) {
             dataConfig.saveConfigs();
         }
+
         if (warManager != null) {
             warManager.stopAll();
         }
@@ -111,6 +119,8 @@ public class ExClan extends ExPlugin {
     protected void onReload() {
         this.mainConfig.reload();
         this.language.reload();
+        this.configHome.reload();
+        this.configHomeIcon.reload();
     }
 
     public ClanManager getClanManager() {
@@ -125,10 +135,6 @@ public class ExClan extends ExPlugin {
         return requestInvite;
     }
 
-    public ChatManager getChatManager() {
-        return chatManager;
-    }
-
     public BankManager getBankManager() {
         return bankManager;
     }
@@ -137,7 +143,11 @@ public class ExClan extends ExPlugin {
         return warManager;
     }
 
-    public Language getLanguage() {
-        return language;
+    public ConfigHome getConfigHome() {
+        return configHome;
+    }
+
+    public ConfigHomeIcon getConfigHomeIcon() {
+        return configHomeIcon;
     }
 }

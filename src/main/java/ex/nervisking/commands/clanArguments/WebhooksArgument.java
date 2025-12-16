@@ -3,7 +3,7 @@ package ex.nervisking.commands.clanArguments;
 import ex.api.base.command.*;
 import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.LinkUtils;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;

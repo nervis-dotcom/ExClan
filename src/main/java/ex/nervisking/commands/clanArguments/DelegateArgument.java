@@ -7,8 +7,7 @@ import ex.api.base.command.Sender;
 import ex.api.base.model.CustomColor;
 import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.DiscordWebhooks;
-import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.models.Clan;
 import org.bukkit.OfflinePlayer;
 
@@ -41,12 +40,14 @@ public record DelegateArgument(ClanManager clanManager) implements CommandArgume
             return;
         }
 
+
         if (!clan.hasMember(offlinePlayer.getUniqueId())) {
             sender.sendLang("not-member");
             return;
         }
+        var member = clan.getMember(offlinePlayer.getUniqueId());
 
-        clan.setDelegate(offlinePlayer.getUniqueId(), offlinePlayer.getName());
+        clan.setDelegate(member, offlinePlayer.getName());
 
         sender.sendLang("delegate.success", ParseVariable.adD("%player%", offlinePlayer.getName()));
 

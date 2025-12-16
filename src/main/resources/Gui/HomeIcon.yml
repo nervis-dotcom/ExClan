@@ -1,0 +1,40 @@
+title: "&fIconos de los homes del clan"
+rows: 6
+slots: "10, 11, 12, 13, 14, 15, 16, 19, 20, 21, 22, 23, 24, 25, 29, 33"
+items:
+  default:
+    icons:
+      slot: -1 # se usa los 'slots'
+      hide-tooltip: true
+    previous-page: # solo aparece si ay mas pagina
+      slot: 37
+      id: "[texture] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvYWQ3M2NmNjZkMzFiODNjZDhiODY0NGMxNTk1OGMxYjczYzhkOTczMjNiODAxMTcwYzFkODg2NGJiNmE4NDZkIn19fQ=="
+      name: "&fPagina Anterior"
+    close:
+      slot: 40
+      id: "[texture] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDM0NWU1ZmNlMmZjZmZmNzhjZGFjNjVlZDg4MTkxOGM3OWMzOGU4NTVlYmJjMTkyYzk3YzU3ODRjMzJkMzc4In19fQ=="
+      name: "&fCerrar"
+  others:
+    item1:
+      slot: 0
+      id: "BLACK_STAINED_GLASS_PANE"
+      duplicate: "1-2,6-8,45-53"
+    item2:
+      slot: 3
+      id: "RED_STAINED_GLASS_PANE"
+      duplicate: "4-5,9,17-18,26-27,35"
+      hide-tooltip: true
+    item3:
+      slot: 10
+      id: "WHITE_STAINED_GLASS_PANE"
+      duplicate: "11-16,19-25,29,33"
+    item4:
+      slot: 28
+      id: "YELLOW_STAINED_GLASS_PANE"
+      duplicate: "30-32,34,36-39,41-44"
+      hide-tooltip: true
+    item5:
+      slot: 37
+      id: "ORANGE_STAINED_GLASS_PANE"
+      hide-tooltip: true
+    #mass

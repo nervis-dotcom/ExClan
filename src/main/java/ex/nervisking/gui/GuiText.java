@@ -11,7 +11,7 @@ import java.util.function.BiConsumer;
 
 public class GuiText {
 
-    public static void open(Player player, BiConsumer<Boolean, Symbols> consumer) {
+    public static void openSimbolo(Player player, BiConsumer<Boolean, Symbols> consumer) {
         Dialog dialog = Dialog.of(player)
                 .addBodies(BodyText.of("Elige un Símbolo"))
                 .addButton(ButtonSpec.of("&cCancel", "cancel").setDescription("Click para cancelar"))

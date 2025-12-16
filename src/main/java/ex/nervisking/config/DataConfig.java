@@ -1,10 +1,13 @@
 package ex.nervisking.config;
 
+import ex.api.base.Ex;
 import ex.api.base.annotations.KeyAlphaNum;
 import ex.api.base.config.FolderConfig;
 import ex.api.base.model.Coordinate;
 import ex.nervisking.ExClan;
 import ex.nervisking.models.*;
+import ex.nervisking.models.chat.Chat;
+import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.inventory.ItemStack;
@@ -28,7 +31,11 @@ public class DataConfig extends FolderConfig<ExClan> {
                 String clanId = configFile.getFileName();
                 String clanTag = config.getString(clanPath + ".tag");
                 String leaderName = config.getString(clanPath + ".leader-name");
+                boolean leaderPvp = config.getBoolean(clanPath + ".leader-pvp");
+                Chat leaderChat = Chat.fromString(config.getString(clanPath + ".leader-chat"));
                 UUID leaderUuid = UUID.fromString(config.getString(clanPath + ".leader-uuid", ""));
+
+                Leader leader = new Leader(leaderUuid, leaderName, leaderChat, leaderPvp);
                 int points = config.getInt(clanPath + ".points", 0);
                 int kills = config.getInt(clanPath + ".kills", 0);
                 String description = config.getString(clanPath + ".description", "");
@@ -43,7 +50,9 @@ public class DataConfig extends FolderConfig<ExClan> {
                         try {
                             UUID memberUuid = UUID.fromString(key);
                             Rank rank = Rank.fromString(config.getString(clanPath + ".members." + key + ".rank", "member").toUpperCase());
-                            members.add(new Member(memberUuid, rank != null ? rank : Rank.MEMBER));
+                            boolean memberPvp = config.getBoolean(clanPath + ".members." + key + ".pvp");
+                            Chat chat = Chat.fromString(config.getString(clanPath + ".members." + key + ".chat"));
+                            members.add(new Member(memberUuid, rank != null ? rank : Rank.MEMBER, chat, memberPvp));
                         } catch (IllegalArgumentException e) {
                             logger.warn("Invalid UUID format for member: " + key);
                         }
@@ -101,7 +110,7 @@ public class DataConfig extends FolderConfig<ExClan> {
                 ConfigurationSection homesSection = config.getConfigurationSection(clanPath + ".homes");
                 if (homesSection != null) {
                     for (String key : homesSection.getKeys(false)) {
-                        String icon = homesSection.getString(key + ".icon");
+                        var icon = Ex.getMaterial(homesSection.getString(key + ".icon"), Material.FIREWORK_STAR);
                         String world = homesSection.getString(key + ".location.world");
                         double x = homesSection.getDouble(key + ".location.x");
                         double y = homesSection.getDouble(key + ".location.y");
@@ -114,7 +123,7 @@ public class DataConfig extends FolderConfig<ExClan> {
 
                 ItemStack icon = config.getItemStack(clanPath + ".icon");
 
-                Clan clan = new Clan(clanId, clanTag, leaderName, leaderUuid, members, bannedMembers, allys, homes, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems, icon);
+                Clan clan = new Clan(clanId, clanTag, leader, members, bannedMembers, allys, homes, points, kills, description, discordWebhooks, pvp, pvpAlly, symbols, chestItems, icon);
 
                 clan.setBank(config.getLong(clanPath + ".bank", 0));
                 plugin.getClanManager().addClan(clanId, clan);
@@ -136,6 +145,8 @@ public class DataConfig extends FolderConfig<ExClan> {
             config.set(clanPath + "tag", clan.getClanTag());
             config.set(clanPath + "leader-name", clan.getLeaderName());
             config.set(clanPath + "leader-uuid", clan.getLaderUuid().toString());
+            config.set(clanPath + "leader-pvp", clan.getLader().isPvp());
+            config.set(clanPath + "leader-chat", clan.getLader().getChat() != null ? clan.getLader().getChat().name() : Chat.NONE.name());
             config.set(clanPath + "points", clan.getPoints());
             config.set(clanPath + "kills", clan.getKills());
             config.set(clanPath + "bank", clan.getBank());
@@ -150,6 +161,8 @@ public class DataConfig extends FolderConfig<ExClan> {
                     if (member != null && member.getUuid() != null) {
                         String memberPath = clanPath + "members." + member.getUuid();
                         config.set(memberPath + ".rank", member.getRank() != null ? member.getRank().name() : Rank.MEMBER.name());
+                        config.set(memberPath + ".pvp", member.isPvp());
+                        config.set(memberPath + ".chat", member.getChat() != null ? member.getChat().name() : Chat.NONE.name());
                     }
                 }
             }
@@ -174,7 +187,7 @@ public class DataConfig extends FolderConfig<ExClan> {
             List<Homes> homes = clan.getHomes();
             if (homes != null && !homes.isEmpty()) {
                 for (Homes home : homes) {
-                    homesSection.set(home.getName() + ".icon", home.getIcon());
+                    homesSection.set(home.getName() + ".icon", home.getIcon().name());
                     ConfigurationSection locSec = homesSection.createSection(home.getName() + ".location");
                     Coordinate loc = home.getCoordinate();
                     locSec.set("world", loc.world());

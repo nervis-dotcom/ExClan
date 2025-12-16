@@ -3,10 +3,9 @@ package ex.nervisking.events;
 import ex.api.base.event.Event;
 import ex.api.base.model.CustomColor;
 import ex.api.base.utils.DiscordWebhooks;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.MainConfig;
-import ex.nervisking.manager.ChatManager;
 import ex.nervisking.models.chat.Chat;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.chat.ChatFormat;
@@ -25,12 +24,10 @@ import java.util.UUID;
 public class ChatEvent extends Event<ExClan> {
 
     private final MainConfig config;
-    private final ChatManager chatManager;
     private final ClanManager clanManager;
 
     public ChatEvent() {
         this.config = plugin.getMainConfig();
-        this.chatManager = plugin.getChatManager();
         this.clanManager = plugin.getClanManager();
     }
 
@@ -39,16 +36,16 @@ public class ChatEvent extends Event<ExClan> {
         Player player = event.getPlayer();
         UUID uuid = player.getUniqueId();
 
-        Chat chat = chatManager.getChat(uuid);
-        if (chat == null) {
-            return;
-        }
-
         Clan clan = clanManager.getClan(uuid);
         if (clan == null) {
             return;
         }
 
+        if (!clan.hasChat(uuid)) {
+            return;
+        }
+
+        Chat chat = clan.getChat(uuid);
         String message = event.signedMessage().message();
 
         if (chat == Chat.CLAN) {

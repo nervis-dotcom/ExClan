@@ -1,9 +1,13 @@
 package ex.nervisking.config;
 
+import ex.api.base.Ex;
 import ex.api.base.config.ConfigInfo;
 import ex.api.base.config.Yaml;
+import ex.api.base.utils.teleport.TPAnimation;
 import ex.nervisking.models.chat.ChatFormat;
 import ex.nervisking.models.chat.HoverAction;
+import org.bukkit.Particle;
+import org.bukkit.Sound;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.jetbrains.annotations.NotNull;
 
@@ -23,6 +27,15 @@ public class MainConfig extends Yaml {
     private int pointLosing;
     private String cooldownTime;
     private String cooldownMessage;
+
+    private int maxHomes;
+    private int delayTeleport;
+    private String permissionBypass;
+    private Sound sound;
+    private Particle particle;
+    private Sound soundInTeleport;
+    private TPAnimation animation;
+
 
     public MainConfig() {
         this.chatFormats = new HashMap<>();
@@ -45,6 +58,16 @@ public class MainConfig extends Yaml {
 
         this.cooldownTime = config.getString("config.point-kills.cooldown.time", "2m");
         this.cooldownMessage = config.getString("config.point-kills.cooldown.message");
+
+        this.maxHomes = config.getInt("config.home.max", 3);
+
+        this.delayTeleport = config.getInt("config.home.teleport.delay", 3);
+        this.permissionBypass = config.getString("config.home.teleport.permissions-bypass", "home.instant");
+        this.sound = Ex.getSound(config.getString("config.home.teleport.sound", "ENTITY_ENDERMAN_TELEPORT"), Sound.ENTITY_ENDERMAN_TELEPORT);
+        this.particle = Ex.getParticle(config.getString("config.home.teleport.particle", "FLAME"), Particle.FLAME);
+        this.soundInTeleport = Ex.getSound(config.getString("config.home.teleport.sound-in-teleport", "ENTITY_PLAYER_LEVELUP"), Sound.ENTITY_PLAYER_LEVELUP);
+        var b = TPAnimation.fromString(config.getString("config.home.teleport.animation", "DOUBLE_SPIRAL").toUpperCase());
+        this.animation = b != null ? b : TPAnimation.DOUBLE_SPIRAL;
 
         chatFormats.clear();
         if (config.contains("chat-format")) {
@@ -127,6 +150,34 @@ public class MainConfig extends Yaml {
 
     public String getCooldownTime() {
         return cooldownTime;
+    }
+
+    public int getMaxHomes() {
+        return maxHomes;
+    }
+
+    public TPAnimation getAnimation() {
+        return animation;
+    }
+
+    public Sound getSoundInTeleport() {
+        return soundInTeleport;
+    }
+
+    public Particle getParticle() {
+        return particle;
+    }
+
+    public Sound getSound() {
+        return sound;
+    }
+
+    public String getPermissionBypass() {
+        return permissionBypass;
+    }
+
+    public int getDelayTeleport() {
+        return delayTeleport;
     }
 
     private @NotNull HoverAction loadHoverAction(@NotNull FileConfiguration config, String path) {

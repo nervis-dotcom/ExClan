@@ -3,24 +3,24 @@ package ex.nervisking.commands.clanArguments;
 import ex.api.base.command.*;
 import ex.api.base.model.ParseVariable;
 import ex.api.base.utils.PlayerTeleport;
-import ex.api.base.utils.teleport.TPAnimation;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.MainConfig;
 import ex.nervisking.gui.homes.HomeMenu;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Homes;
 import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.Sound;
 
 import java.util.UUID;
 
 @CommandArg(name = "home", permission = true)
 public class HomeArgument implements CommandArgument {
 
-    public final ClanManager clanManager;
+    private final MainConfig config;
+    private final ClanManager clanManager;
 
     public HomeArgument(ExClan plugin) {
+        this.config = plugin.getMainConfig();
         this.clanManager = plugin.getClanManager();
     }
 
@@ -42,20 +42,31 @@ public class HomeArgument implements CommandArgument {
             sender.helpLang("home.usage");
             return;
         }
-        String clanName = args.get(1);
+        String homeName = args.get(1);
         switch (args.get(0).toLowerCase()) {
-            case "set" -> {
+            case "add" -> {
                 if (!clan.isLader(uuid)) {
                     sender.sendLang("not-leader");
                     return;
                 }
 
-                if (utilsManagers.isValidText(clanName) || utilsManagers.hasColorCodes(clanName)) {
+                if (clan.hasHome(homeName)) {
+                    sender.sendLang("home.add.already-exists");
+                    return;
+                }
+
+                if (clan.getHomeAmount() >= config.getMaxHomes()) {
+                    sender.sendLang("home.max-homes");
+                    return;
+                }
+
+                if (utilsManagers.isValidText(homeName) || utilsManagers.hasColorCodes(homeName)) {
                     sender.sendLang("invalid-name");
                     return;
                 }
-                clan.addHome(clanName, sender.getCoordinate());
-                sender.sendLang("home.set.success");
+
+                clan.addHome(homeName, sender.getCoordinate());
+                sender.sendLang("home.add.success");
             }
             case "delete" -> {
                 if (!clan.isLader(uuid)) {
@@ -63,18 +74,18 @@ public class HomeArgument implements CommandArgument {
                     return;
                 }
 
-                Homes homes = clan.getHome(clanName);
+                Homes homes = clan.getHome(homeName);
                 if (homes == null) {
-                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", clanName));
+                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", homeName));
                     return;
                 }
                 clan.removeHome(homes);
-                sender.sendLang("home.delete.success");
+                sender.sendLang("home.delete.success", ParseVariable.adD("%home%", homeName));
             }
             case "tp" -> {
-                Homes homes = clan.getHome(clanName);
+                Homes homes = clan.getHome(homeName);
                 if (homes == null) {
-                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", clanName));
+                    sender.sendLang("home.not-found", ParseVariable.adD("%home%", homeName));
                     return;
                 }
 
@@ -92,27 +103,29 @@ public class HomeArgument implements CommandArgument {
                 }
 
                 PlayerTeleport teleport = PlayerTeleport.of(sender.getPlayer(), location)
-                        .setMessage(language.getString("clan","home.tp.success").replace("%home%", clanName))
-                        .setSound(Sound.ENTITY_ENDERMAN_TELEPORT)
-                        .setParticle(Particle.FLAME)
-                        .setTeleportAnimation(TPAnimation.DOUBLE_SPIRAL)
-                        .setDelayTicks(3)
-                        .setNoDelayPermission("home.instant")
+                        .setMessage(language.getString("clan","home.tp.success").replace("%home%", homeName))
+                        .setSound(config.getSound())
+                        .setParticle(config.getParticle())
+                        .setTeleportAnimation(config.getAnimation())
+                        .setDelayTicks(config.getDelayTeleport())
+                        .setNoDelayPermission(config.getPermissionBypass())
                         .setMessageInTeleport(language.getString("clan", "home.tp.teleporting"), language.getString("clan", "home.tp.teleported"))
-                        .setSoundInTeleport(Sound.ENTITY_PLAYER_LEVELUP);
+                        .setSoundInTeleport(config.getSoundInTeleport());
 
-                teleport.teleportOf(() -> sender.sendMessage(language.getString("clan", "home.tp.error") + teleport.getErrorMessage()));
+                teleport.teleportOf(() -> sender.sendLang( "home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage())));
             }
+
+            default -> sender.helpLang("home.usage");
         }
     }
 
     @Override
     public Completions tab(Sender sender, Arguments args, Completions completions) {
         if (args.has(1)) {
-            completions.add("set", "delete", "tp");
+            completions.add("add", "delete", "tp");
         }
 
-        if (args.has(2) && args.equalsIgnoreCase(0, "set")) {
+        if (args.has(2) && args.equalsIgnoreCase(0, "add")) {
             completions.add("[name]");
         }
 

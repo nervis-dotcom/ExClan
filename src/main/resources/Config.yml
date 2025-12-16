@@ -12,6 +12,15 @@ config:
     cooldown:
       time: "2m"
       message: "%prefix% No puedes farmear a %player%. Espera un poco antes de volver a ganar puntos."
+  home:
+    max: 3
+    teleport:
+      delay: 3
+      permissions-bypass: "home.instant" #requiere: exclan.'home.instant'
+      sound: "ENTITY_ENDERMAN_TELEPORT"
+      particle: "FLAME"
+      sound-in-teleport: "ENTITY_PLAYER_LEVELUP"
+      animation: "DOUBLE_SPIRAL" # type: DOUBLE_SPIRAL, SPIRAL, CIRCLE, VERTICAL_PULSE, FLOATING_CIRCLE
 
 chat-format:
   clan:

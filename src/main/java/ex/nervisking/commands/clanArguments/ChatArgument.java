@@ -1,23 +1,13 @@
 package ex.nervisking.commands.clanArguments;
 
 import ex.api.base.command.*;
-import ex.nervisking.ClanManager;
-import ex.nervisking.ExClan;
-import ex.nervisking.manager.ChatManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.models.chat.Chat;
 
 import java.util.UUID;
 
 @CommandArg(name = "chat", description = "enviar mensaje a todo los del clan.", permission = true)
-public class ChatArgument implements CommandArgument {
-
-    private final ChatManager chatManager;
-    private final ClanManager clanManager;
-
-    public ChatArgument(ExClan plugin) {
-        this.clanManager = plugin.getClanManager();
-        this.chatManager = plugin.getChatManager();
-    }
+public record ChatArgument(ClanManager clanManager) implements CommandArgument {
 
     @Override
     public void execute(Sender sender, Arguments args) {
@@ -26,22 +16,23 @@ public class ChatArgument implements CommandArgument {
             return;
         }
         UUID uuid = sender.getUniqueId();
-        if (!clanManager.isInClan(uuid)) {
+        var clan = clanManager.getClan(uuid);
+        if (clan == null) {
             sender.sendLang("no-clan");
             return;
         }
 
         switch (args.get(0).toUpperCase()) {
             case "CLAN" -> {
-                chatManager.setChat(uuid, Chat.CLAN);
+                clan.setChat(uuid, Chat.CLAN);
                 sender.sendLang("chat.clan");
             }
             case "ALLY" -> {
-                chatManager.setChat(uuid, Chat.ALLY);
+                clan.setChat(uuid, Chat.ALLY);
                 sender.sendLang("chat.ally");
             }
             case "OFF" -> {
-                chatManager.removeChat(uuid);
+                clan.setChat(uuid, Chat.NONE);
                 sender.sendLang("chat.off");
             }
             default -> sender.helpLang("chat.usage");

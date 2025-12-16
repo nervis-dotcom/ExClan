@@ -3,7 +3,7 @@ package ex.nervisking.commands.clanArguments;
 import ex.api.base.command.*;
 import ex.api.base.hook.VaultHook;
 import ex.api.base.model.ParseVariable;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.manager.BankManager;
 import ex.nervisking.models.Clan;

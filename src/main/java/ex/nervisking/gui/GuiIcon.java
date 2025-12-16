@@ -22,6 +22,11 @@ public class GuiIcon extends Menu<ExClan> {
     }
 
     @Override
+    public String setSection() {
+        return "clan";
+    }
+
+    @Override
     public String setName() {
         return "&fIcono del clan";
     }
@@ -34,6 +39,11 @@ public class GuiIcon extends Menu<ExClan> {
     @Override
     public boolean setCancelClicks() {
         return false;
+    }
+
+    @Override
+    public boolean setCancelSlap() {
+        return true;
     }
 
     @Override
@@ -53,7 +63,7 @@ public class GuiIcon extends Menu<ExClan> {
         if (event.getSlot(13)) {
             if (clan.hasIcon() && current != null) {
                 giveItem(player.getPlayer(), clearNameAndLore(current));
-                player.sendMessage("%prefix% &aHas quitado el icono del clan,");
+                player.sendLang("icon.removed");
                 put(13, null);
                 clan.setIcon(null);
                 event.setCancelled(true);
@@ -65,7 +75,7 @@ public class GuiIcon extends Menu<ExClan> {
                     return;
                 }
                 if (!isBANNER(cursor)) {
-                    player.sendMessage("%prefix% &cEl icono debe ser un banner.");
+                    player.sendLang("icon.invalid-item");
                     event.setCancelled(true);
                     return;
                 }
@@ -77,7 +87,7 @@ public class GuiIcon extends Menu<ExClan> {
 
                 item.setAmount(1);
                 clan.setIcon(item.clone());
-                player.sendMessage("%prefix% &aHas puesto el icono del clan.");
+                player.sendLang("icon.set");
             }
         } else {
             event.setCancelled(true);
@@ -90,8 +100,8 @@ public class GuiIcon extends Menu<ExClan> {
         ItemMeta meta = item.getItemMeta();
         if (meta == null) return item;
 
-        meta.displayName(null); // borra el nombre
-        meta.lore(null); // borra el lore
+        meta.displayName(null);
+        meta.lore(null);
 
         item.setItemMeta(meta);
         return item;

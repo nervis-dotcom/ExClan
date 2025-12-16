@@ -4,7 +4,7 @@ import ex.api.base.command.Arguments;
 import ex.api.base.command.CommandArg;
 import ex.api.base.command.CommandArgument;
 import ex.api.base.command.Sender;
-import ex.nervisking.ClanManager;
+import ex.nervisking.manager.ClanManager;
 import ex.nervisking.models.Clan;
 
 import java.util.UUID;
