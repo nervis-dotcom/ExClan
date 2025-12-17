@@ -1,4 +1,4 @@
-package ex.nervisking.gui.homes;
+package ex.nervisking.gui.home;
 
 import ex.api.base.gui.*;
 import ex.api.base.item.ItemBuilder;
@@ -7,6 +7,7 @@ import ex.api.base.utils.PlayerTeleport;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.MainConfig;
 import ex.nervisking.config.gui.ConfigHome;
+import ex.nervisking.gui.MainClan;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Homes;
 import org.bukkit.*;
@@ -95,15 +96,6 @@ public class HomeMenu extends MenuPages<ExClan> {
         Player player = event.getPlayer();
         MenuUser menuUser = event.getMenuUser();
         int slot = event.getSlot();
-
-        if (slot == 48) {
-            this.prevPage();
-        } else if (slot == 49) {
-            player.closeInventory();
-        } else if (slot == 50) {
-            this.nextPage();
-        }
-
         if (getSlotIndex(slot)) {
             ItemDataMenu clickedItem = event.getCurrentItem(key);
 
@@ -118,32 +110,36 @@ public class HomeMenu extends MenuPages<ExClan> {
                 return;
             }
 
-            if (event.getClick() == ClickType.RIGHT) {
+            if (event.getClick(ClickType.RIGHT)) {
                 Location loc = home.getCoordinate().getLocation();
                 if (loc == null) {
                     menuUser.sendLang("home.tp.invalid-location");
                     return;
                 }
 
-                PlayerTeleport teleport = PlayerTeleport.of(player, loc)
-                        .setMessage(language.getString("clan","home.tp.success").replace("%home%", home.getName()))
+                PlayerTeleport.andRun(player, loc, teleport -> teleport
+                        .setMessage(language.getString("clan", "home.tp.success").replace("%home%", home.getName()))
                         .setSound(config.getSound())
                         .setParticle(config.getParticle())
                         .setTeleportAnimation(config.getAnimation())
                         .setDelayTicks(config.getDelayTeleport())
                         .setNoDelayPermission(config.getPermissionBypass())
                         .setMessageInTeleport(language.getString("clan", "home.tp.teleporting"), language.getString("clan", "home.tp.teleported"))
-                        .setSoundInTeleport(config.getSoundInTeleport());
+                        .setSoundInTeleport(config.getSoundInTeleport())
+                        .teleportOf(this::closeInventory,
+                                    () -> {
+                                        this.closeInventory();
+                                        menuUser.sendLang("home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage()));
+                                    })
+                );
 
-                teleport.teleportOf(this::closeInventory, () -> {this.closeInventory();menuUser.sendLang("home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage()));});
-
-            } else if (event.getClick() == ClickType.LEFT) {
+            } else if (event.getClick(ClickType.LEFT)) {
                 if (!clan.isLader(player.getUniqueId())) {
                     menuUser.sendLang("not-leader");
                     return;
                 }
                 openMenu(new HomeIconMenu(player, home));
-            } else if (event.getClick() == ClickType.SHIFT_LEFT) {
+            } else if (event.getClick(ClickType.SHIFT_LEFT)) {
                 if (!clan.isLader(player.getUniqueId())) {
                     menuUser.sendLang("not-leader");
                     return;
@@ -154,6 +150,7 @@ public class HomeMenu extends MenuPages<ExClan> {
             }
         } else if (get(slot) != null) {
             switch (get(slot)) {
+                case MAIN -> openMenu(new MainClan(player, clan));
                 case CLOSE -> this.closeInventory();
                 case NEXT_PAGE -> this.nextPage();
                 case PREVIOUS_PAGE -> this.prevPage();

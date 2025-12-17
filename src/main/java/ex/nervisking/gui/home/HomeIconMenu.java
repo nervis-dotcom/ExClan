@@ -1,14 +1,12 @@
-package ex.nervisking.gui.homes;
+package ex.nervisking.gui.home;
 
 import ex.api.base.gui.MenuEvent;
 import ex.api.base.gui.MenuPages;
 import ex.api.base.gui.Row;
-import ex.api.base.item.ItemBuilder;
 import ex.api.base.item.RDMaterial;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.gui.ConfigHomeIcon;
 import ex.nervisking.models.Homes;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
@@ -29,7 +27,7 @@ public class HomeIconMenu extends MenuPages<ExClan> {
     @Override
     public List<ItemStack> addDataItems() {
         List<ItemStack> items = new ArrayList<>();
-        for (Material entry : RDMaterial.DYE.getMaterials()) {
+        for (var entry : RDMaterial.DYE.getMaterials()) {
             ItemStack itemStack = configHomeIcon.getItem(ConfigHomeIcon.DataItem.ICONS).getItemBuilder(player, entry).build();
             if (itemStack.getType().equals(homes.getIcon())) {
                 itemStack = configHomeIcon.getItem(ConfigHomeIcon.DataItem.ICONS).getItemBuilder(player, entry)
@@ -63,8 +61,7 @@ public class HomeIconMenu extends MenuPages<ExClan> {
             this.setItem(itemData.getSlot(), itemData.getItemBuilder(player));
         }
         for (var entry : configHomeIcon.getDefaultItems().entrySet()) {
-            ItemBuilder itemBuilder = entry.getValue().getItemBuilder(player);
-
+            var itemBuilder = entry.getValue().getItemBuilder(player);
             if (entry.getKey() == ConfigHomeIcon.DataItem.PREVIOUS_PAGE) {
                 this.setItem(entry.getValue().getSlot(), itemBuilder);
             } else if (entry.getKey() == ConfigHomeIcon.DataItem.HIDE) {
@@ -81,7 +78,7 @@ public class HomeIconMenu extends MenuPages<ExClan> {
         int slot = event.getSlot();
 
         if (getSlotIndex(slot)) {
-            ItemStack clickedItem = event.getCurrentItem();
+            var clickedItem = event.getCurrentItem();
 
             if (clickedItem == null) return;
             homes.setIcon(clickedItem.getType());

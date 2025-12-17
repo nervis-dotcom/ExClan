@@ -1,19 +1,15 @@
-title: "&fHomes del clan"
+title: "&fBaneados del clan"
 rows: 6
-slots: "20, 21, 22, 23, 24"
+slots: "11-15,20-24,29-33"
 items:
   default:
-    homes:
+    banned:
       slot: -1 # se usa los 'slots'
-      # id: se usa el icono del home
-      name: "&fHome: &e%name%"
+      # id: se usa la cabeza del baneado
+      name: "%name%"
       lore:
         - ""
-        - "&8&m                                                        &r"
-        - "&7Click izquierdo para cambiar el icono del home."
-        - "&7Click derecho para ir a ese home."
-        - "&7Click-SHIFT izquierdo para borrar este home."
-        - "&8&m                                                        &r"
+        - "&7Click para desbanearlo."
         - ""
     hide:
       slot: -1 # se usa los 'slots'
@@ -44,12 +40,12 @@ items:
     item2:
       slot: 3
       id: "RED_STAINED_GLASS_PANE"
-      duplicate: "4-5,9-18,26-27,35"
+      duplicate: "4-5,9-10,16-18,26-27,35"
       hide-tooltip: true
     item3:
-      slot: 19
+      slot: 28
       id: "YELLOW_STAINED_GLASS_PANE"
-      duplicate: "28-34,36,38-39,41-43,44"
+      duplicate: "34,36,38-39,41-44"
       hide-tooltip: true
     item4:
       slot: 19

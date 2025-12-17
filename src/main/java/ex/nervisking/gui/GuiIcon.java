@@ -5,7 +5,9 @@ import ex.api.base.gui.MenuEvent;
 import ex.api.base.gui.MenuUser;
 import ex.api.base.gui.Row;
 import ex.api.base.item.ItemBuilder;
+import ex.api.base.task.Scheduler;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.gui.ConfigIcon;
 import ex.nervisking.models.Clan;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -14,11 +16,15 @@ import org.jetbrains.annotations.NotNull;
 
 public class GuiIcon extends Menu<ExClan> {
 
+    private final ConfigIcon configIcon;
     private final Clan clan;
+    private final int icon;
 
     public GuiIcon(@NotNull Player player, @NotNull Clan clan) {
         super(player);
+        this.configIcon = plugin.getConfigIcon();
         this.clan = clan;
+        this.icon = configIcon.getIcon();
     }
 
     @Override
@@ -28,12 +34,12 @@ public class GuiIcon extends Menu<ExClan> {
 
     @Override
     public String setName() {
-        return "&fIcono del clan";
+        return configIcon.getTitle();
     }
 
     @Override
     public Row setRows() {
-        return Row.CHESTS_36;
+        return Row.fromSize(configIcon.getRows());
     }
 
     @Override
@@ -48,23 +54,33 @@ public class GuiIcon extends Menu<ExClan> {
 
     @Override
     public void addItems() {
-        this.setFilter();
-        this.setBorder(ItemBuilder.of(ItemBuilder.BLACK).setHideTooltip());
-        this.put(13, clan.getIcon());
-        this.setItem(31, ItemBuilder.of(ItemBuilder.CLOSE).setName("&cCerrar"));
+        for (var itemData : configIcon.getOtherItems()) {
+            this.setItem(itemData.getSlot(), itemData.getItemBuilder(player));
+        }
+        for (var entry : configIcon.getDefaultItems().entrySet()) {
+            this.setItem(entry.getValue().getSlot(), entry.getValue().getItemBuilder(player));
+        }
+
+        this.setItem(icon, ItemBuilder.of(clan.getIcon().clone()).setName(clan.getClanTag()));
     }
 
     @Override
     public void handleMenu(MenuEvent event) {
-        MenuUser player = event.getMenuUser();
+        MenuUser user = event.getMenuUser();
         ItemStack current = event.getCurrentItem();
         ItemStack cursor = event.getCursor();
+        int slot = event.getSlot();
+        if (event.getSlot(icon)) {
 
-        if (event.getSlot(13)) {
+            if (sendCooldown(clan.getClanName())) {
+                event.setCancelled(true);
+                return;
+            }
+
             if (clan.hasIcon() && current != null) {
-                giveItem(player.getPlayer(), clearNameAndLore(current));
-                player.sendLang("icon.removed");
-                put(13, null);
+                giveItem(user.getPlayer(), clearNameAndLore(current));
+                user.sendLang("icon.removed");
+                put(icon, null);
                 clan.setIcon(null);
                 event.setCancelled(true);
                 return;
@@ -72,29 +88,50 @@ public class GuiIcon extends Menu<ExClan> {
 
             if (cursor != null && !clan.hasIcon()) {
                 if (cursor.getType().isAir()) {
+                    event.setCancelled(true);
                     return;
                 }
                 if (!isBANNER(cursor)) {
-                    player.sendLang("icon.invalid-item");
+                    user.sendLang("icon.invalid-item");
                     event.setCancelled(true);
                     return;
                 }
 
                 var item = clearNameAndLore(cursor);
                 if (item == null) {
+                    event.setCancelled(true);
                     return;
                 }
 
                 item.setAmount(1);
                 clan.setIcon(item.clone());
-                player.sendLang("icon.set");
+                user.sendLang("icon.set");
+                Scheduler.runLater(()-> this.setItem(icon, ItemBuilder.of(clan.getIcon().clone()).setName(clan.getClanTag())), 1);
+            }
+        } else if (get(slot) != null) {
+            switch (get(slot)) {
+                case CLOSE -> this.closeInventory();
+                case MAIN -> openMenu(new MainClan(player, clan));
             }
         } else {
-            event.setCancelled(true);
+            for (var itemData : configIcon.getOtherItems()) {
+                if (itemData.getSlot(slot) && itemData.hasActions()) {
+                    executeActions(player, itemData.getActions());
+                    break;
+                }
+            }
         }
     }
 
-    public static ItemStack clearNameAndLore(ItemStack item) {
+    public ConfigIcon.DataItem get(int slot) {
+        for (var entry : configIcon.getDefaultItems().entrySet()) {
+            if (entry.getValue().getSlot(slot)) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+    private ItemStack clearNameAndLore(ItemStack item) {
         if (item == null) return null;
 
         ItemMeta meta = item.getItemMeta();
@@ -107,7 +144,7 @@ public class GuiIcon extends Menu<ExClan> {
         return item;
     }
 
-    public boolean isBANNER(ItemStack itemStack) {
+    private boolean isBANNER(ItemStack itemStack) {
         return itemStack != null && itemStack.getType().name().endsWith("_BANNER");
     }
 }

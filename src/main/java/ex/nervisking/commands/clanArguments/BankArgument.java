@@ -29,6 +29,7 @@ public class BankArgument implements CommandArgument {
             sender.sendLang("no-clan");
             return;
         }
+
         if (args.isEmpty()) {
             sender.helpLang("bank.usage");
             return;

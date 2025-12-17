@@ -1,0 +1,53 @@
+title: "&fMenu del clan"
+rows: 6
+items:
+  default:
+    leader:
+      slot: 4
+      # id: se usa la cabeza del jugador
+      name: "&fDueño: &e%leader%"
+    close:
+      slot: 40
+      id: "[texture] eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZDM0NWU1ZmNlMmZjZmZmNzhjZGFjNjVlZDg4MTkxOGM3OWMzOGU4NTVlYmJjMTkyYzk3YzU3ODRjMzJkMzc4In19fQ=="
+      name: "&fCerrar"
+    member:
+      slot: 20
+      id: "BEACON"
+      name: "&fMiembros"
+    ally:
+      slot: 21
+      id: "SHIELD"
+      name: "&fAllys"
+    banned:
+      slot: 22
+      id: "SKELETON_SKULL"
+      name: "&fBaneados"
+    home:
+      slot: 23
+      id: "ENDER_EYE"
+      name: "&fHomes"
+    icon:
+      slot: 24
+      id: "ITEM_FRAME"
+      name: "&fIcono"
+    vault:
+      slot: 30
+      id: "CHEST"
+      name: "&fBoveda"
+  others:
+    item1:
+      slot: 0
+      id: "BLACK_STAINED_GLASS_PANE"
+      duplicate: "1-2,6-8,10-16,19,25,28-29,31-34,45-53"
+      hide-tooltip: true
+    item2:
+      slot: 3
+      id: "RED_STAINED_GLASS_PANE"
+      duplicate: "5,9,17-18,26-27,35"
+      hide-tooltip: true
+    item3:
+      slot: 36
+      id: "YELLOW_STAINED_GLASS_PANE"
+      duplicate: "37-39,41-44"
+      hide-tooltip: true
+    #mass

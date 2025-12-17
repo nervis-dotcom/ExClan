@@ -6,10 +6,13 @@ import ex.api.base.config.Yaml;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
-@ConfigInfo(name = "Home", folder = "Gui", register = false)
-public class ConfigHome extends Yaml {
+@ConfigInfo(name = "Members", folder = "Gui", register = false)
+public class ConfigMember extends Yaml {
 
     private final Map<DataItem, CustomItem> defaultItems = new EnumMap<>(DataItem.class);
     private List<CustomItem> otherItems = new ArrayList<>();
@@ -17,7 +20,7 @@ public class ConfigHome extends Yaml {
     private int rows;
     private List<Integer> slots;
 
-    public ConfigHome() {
+    public ConfigMember() {
         this.load();
     }
 
@@ -79,7 +82,7 @@ public class ConfigHome extends Yaml {
     public enum DataItem {
 
         MAIN("main"),
-        HOMES("homes"),
+        MEMBERS("members"),
         HIDE("hide"),
         PREVIOUS_PAGE("previous-page"),
         NEXT_PAGE("next-page"),

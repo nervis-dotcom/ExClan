@@ -131,7 +131,6 @@ public class DataConfig extends FolderConfig<ExClan> {
         }
     }
 
-
     @Override
     public void saveConfigs() {
         for (var clan : plugin.getClanManager().getClanData().values()) {

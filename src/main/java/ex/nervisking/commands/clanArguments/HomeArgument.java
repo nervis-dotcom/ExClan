@@ -6,7 +6,7 @@ import ex.api.base.utils.PlayerTeleport;
 import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.MainConfig;
-import ex.nervisking.gui.homes.HomeMenu;
+import ex.nervisking.gui.home.HomeMenu;
 import ex.nervisking.models.Clan;
 import ex.nervisking.models.Homes;
 import org.bukkit.Location;
@@ -102,7 +102,7 @@ public class HomeArgument implements CommandArgument {
                     return;
                 }
 
-                PlayerTeleport teleport = PlayerTeleport.of(sender.getPlayer(), location)
+                PlayerTeleport.andRun(sender.getPlayer(), location, teleport -> teleport
                         .setMessage(language.getString("clan","home.tp.success").replace("%home%", homeName))
                         .setSound(config.getSound())
                         .setParticle(config.getParticle())
@@ -110,9 +110,9 @@ public class HomeArgument implements CommandArgument {
                         .setDelayTicks(config.getDelayTeleport())
                         .setNoDelayPermission(config.getPermissionBypass())
                         .setMessageInTeleport(language.getString("clan", "home.tp.teleporting"), language.getString("clan", "home.tp.teleported"))
-                        .setSoundInTeleport(config.getSoundInTeleport());
-
-                teleport.teleportOf(() -> sender.sendLang( "home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage())));
+                        .setSoundInTeleport(config.getSoundInTeleport())
+                        .teleportOf(() -> sender.sendLang( "home.tp.error", ParseVariable.adD("%error%", teleport.getErrorMessage())))
+                );
             }
 
             default -> sender.helpLang("home.usage");

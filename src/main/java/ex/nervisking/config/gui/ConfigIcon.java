@@ -6,18 +6,21 @@ import ex.api.base.config.Yaml;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
-@ConfigInfo(name = "Home", folder = "Gui", register = false)
-public class ConfigHome extends Yaml {
+@ConfigInfo(name = "Icon", folder = "Gui", register = false)
+public class ConfigIcon extends Yaml {
 
     private final Map<DataItem, CustomItem> defaultItems = new EnumMap<>(DataItem.class);
     private List<CustomItem> otherItems = new ArrayList<>();
     private String title;
     private int rows;
-    private List<Integer> slots;
+    private int icon;
 
-    public ConfigHome() {
+    public ConfigIcon() {
         this.load();
     }
 
@@ -30,7 +33,7 @@ public class ConfigHome extends Yaml {
 
         this.title = config.getString("title", "");
         this.rows = config.getInt("rows", 6);
-        this.slots = customConfig.parseSlotList("slots", 10);
+        this.icon = config.getInt("icon", 22);
 
         // Cargar DEFAULT
         ConfigurationSection defaultSection = config.getConfigurationSection("items.default");
@@ -60,29 +63,21 @@ public class ConfigHome extends Yaml {
         return rows;
     }
 
-    public List<Integer> getSlots() {
-        return slots;
-    }
-
     public Map<DataItem, CustomItem> getDefaultItems() {
         return defaultItems;
-    }
-
-    public CustomItem getItem(DataItem dataItem) {
-        return defaultItems.get(dataItem);
     }
 
     public List<CustomItem> getOtherItems() {
         return otherItems;
     }
 
+    public int getIcon() {
+        return icon;
+    }
+
     public enum DataItem {
 
         MAIN("main"),
-        HOMES("homes"),
-        HIDE("hide"),
-        PREVIOUS_PAGE("previous-page"),
-        NEXT_PAGE("next-page"),
         CLOSE("close");
 
         private final String name;

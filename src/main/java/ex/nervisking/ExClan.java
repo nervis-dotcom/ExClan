@@ -10,8 +10,7 @@ import ex.api.base.language.LanguageService;
 import ex.api.base.model.CustomColor;
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
-import ex.nervisking.config.gui.ConfigHome;
-import ex.nervisking.config.gui.ConfigHomeIcon;
+import ex.nervisking.config.gui.*;
 import ex.nervisking.events.ChatEvent;
 import ex.nervisking.hook.Papi;
 import ex.nervisking.manager.BankManager;
@@ -42,6 +41,11 @@ public class ExClan extends ExPlugin {
 
     private ConfigHome configHome;
     private ConfigHomeIcon configHomeIcon;
+    private ConfigMainGui configMainGui;
+    private ConfigMember configMember;
+    private ConfigAlly configAlly;
+    private ConfigBanned configBanned;
+    private ConfigIcon configIcon;
 
     @Override
     public String setPrefix() {
@@ -84,6 +88,11 @@ public class ExClan extends ExPlugin {
         // Configs Gui
         this.configHome = new ConfigHome();
         this.configHomeIcon = new ConfigHomeIcon();
+        this.configMainGui = new ConfigMainGui();
+        this.configMember = new ConfigMember();
+        this.configAlly = new ConfigAlly();
+        this.configBanned = new ConfigBanned();
+        this.configIcon = new ConfigIcon();
 
         // Comando
         this.register(new CommandMain(this));
@@ -121,6 +130,11 @@ public class ExClan extends ExPlugin {
         this.language.reload();
         this.configHome.reload();
         this.configHomeIcon.reload();
+        this.configMainGui.reload();
+        this.configMember.reload();
+        this.configAlly.reload();
+        this.configBanned.reload();
+        this.configIcon.reload();
     }
 
     public ClanManager getClanManager() {
@@ -149,5 +163,25 @@ public class ExClan extends ExPlugin {
 
     public ConfigHomeIcon getConfigHomeIcon() {
         return configHomeIcon;
+    }
+
+    public ConfigMainGui getConfigMainGui() {
+        return configMainGui;
+    }
+
+    public ConfigMember getConfigMember() {
+        return configMember;
+    }
+
+    public ConfigAlly getConfigAlly() {
+        return configAlly;
+    }
+
+    public ConfigBanned getConfigBanned() {
+        return configBanned;
+    }
+
+    public ConfigIcon getConfigIcon() {
+        return configIcon;
     }
 }

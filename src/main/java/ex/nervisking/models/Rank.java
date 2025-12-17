@@ -34,7 +34,7 @@ public enum Rank {
         return displayName;
     }
 
-    public Symbols getSymbol() {
+    private Symbols getSymbol() {
         return symbol;
     }
 

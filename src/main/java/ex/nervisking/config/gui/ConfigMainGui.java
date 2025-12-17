@@ -6,18 +6,20 @@ import ex.api.base.config.Yaml;
 import org.bukkit.configuration.ConfigurationSection;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
-@ConfigInfo(name = "Home", folder = "Gui", register = false)
-public class ConfigHome extends Yaml {
+@ConfigInfo(name = "Main", folder = "Gui", register = false)
+public class ConfigMainGui extends Yaml {
 
     private final Map<DataItem, CustomItem> defaultItems = new EnumMap<>(DataItem.class);
     private List<CustomItem> otherItems = new ArrayList<>();
     private String title;
     private int rows;
-    private List<Integer> slots;
 
-    public ConfigHome() {
+    public ConfigMainGui() {
         this.load();
     }
 
@@ -30,7 +32,6 @@ public class ConfigHome extends Yaml {
 
         this.title = config.getString("title", "");
         this.rows = config.getInt("rows", 6);
-        this.slots = customConfig.parseSlotList("slots", 10);
 
         // Cargar DEFAULT
         ConfigurationSection defaultSection = config.getConfigurationSection("items.default");
@@ -60,16 +61,8 @@ public class ConfigHome extends Yaml {
         return rows;
     }
 
-    public List<Integer> getSlots() {
-        return slots;
-    }
-
     public Map<DataItem, CustomItem> getDefaultItems() {
         return defaultItems;
-    }
-
-    public CustomItem getItem(DataItem dataItem) {
-        return defaultItems.get(dataItem);
     }
 
     public List<CustomItem> getOtherItems() {
@@ -78,11 +71,13 @@ public class ConfigHome extends Yaml {
 
     public enum DataItem {
 
-        MAIN("main"),
-        HOMES("homes"),
-        HIDE("hide"),
-        PREVIOUS_PAGE("previous-page"),
-        NEXT_PAGE("next-page"),
+        LEADER("leader"),
+        MEMBER("member"),
+        ALLY("ally"),
+        BANNED("banned"),
+        HOME("home"),
+        ICON("icon"),
+        VAULT("vault"),
         CLOSE("close");
 
         private final String name;
