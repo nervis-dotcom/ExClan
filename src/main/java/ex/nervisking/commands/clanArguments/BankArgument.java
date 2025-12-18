@@ -3,6 +3,7 @@ package ex.nervisking.commands.clanArguments;
 import ex.api.base.command.*;
 import ex.api.base.hook.VaultHook;
 import ex.api.base.model.ParseVariable;
+import ex.nervisking.config.SettingConfig;
 import ex.nervisking.manager.ClanManager;
 import ex.nervisking.ExClan;
 import ex.nervisking.manager.BankManager;
@@ -13,10 +14,12 @@ import java.util.UUID;
 @CommandArg(name = "bank", permission = true)
 public class BankArgument implements CommandArgument {
 
+    private final SettingConfig settingConfig;
     private final BankManager clanBankLocks;
     private final ClanManager clanManager;
 
     public BankArgument(ExClan plugin) {
+        this.settingConfig = plugin.getSettingConfig();
         this.clanBankLocks = plugin.getBankManager();
         this.clanManager = plugin.getClanManager();
     }
@@ -32,6 +35,11 @@ public class BankArgument implements CommandArgument {
 
         if (args.isEmpty()) {
             sender.helpLang("bank.usage");
+            return;
+        }
+
+        if (!settingConfig.isBankEnable()) {
+            sender.sendLang("bank.disabled");
             return;
         }
 

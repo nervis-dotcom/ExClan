@@ -14,7 +14,7 @@ public class ClanCommand extends CommandArgumentBase {
                 new JoinArgument(plugin), new LeaveArgument(plugin.getClanManager()), new KickArgument(plugin.getClanManager()), new PromoteArgument(plugin.getClanManager()),
                 new DemoteArgument(plugin.getClanManager()), new ChatArgument(plugin.getClanManager()), new DelegateArgument(plugin.getClanManager()), new WebhooksArgument(plugin.getClanManager()),
                 new AllysArgument(plugin), new PvpArgument(plugin.getClanManager()), new BanArgument(plugin.getClanManager()), new UnBanArgument(plugin.getClanManager()),
-                new SymbolsArgument(plugin.getClanManager()), new ChestArgument(plugin.getClanManager()), new BankArgument(plugin), new IconArgument(plugin.getClanManager()),
+                new SymbolsArgument(plugin.getClanManager()), new ChestArgument(plugin), new BankArgument(plugin), new IconArgument(plugin.getClanManager()),
                 new HomeArgument(plugin), new GuiArgument(plugin.getClanManager())
         );
     }

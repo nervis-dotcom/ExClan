@@ -128,6 +128,7 @@ messages:
       success: "%prefix% &aHas baneado al jugador: %player%"
       usage: "%prefix% &eUsa: &f/clan bank <deposit | withdraw | balance>"
       economy-disabled: "%prefix% &cEconomía no habilitada."
+      disabled: "%prefix% &cEl banco del clan está deshabilitado."
 
       lock:
         deposit: "%prefix% &cHay otra operación en curso."
@@ -216,3 +217,5 @@ messages:
       removed: "%prefix% &aHas quitado el icono del clan."
       set: "%prefix% &aHas puesto el icono del clan."
       invalid-item: "%prefix% &cEl icono debe ser un banner."
+    chest:
+      disabled: "%prefix% &cEl cofre del clan está deshabilitado."

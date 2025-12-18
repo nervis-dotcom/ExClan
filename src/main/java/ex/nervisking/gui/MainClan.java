@@ -6,6 +6,7 @@ import ex.api.base.gui.MenuUser;
 import ex.api.base.gui.Row;
 import ex.api.base.model.ParseVariable;
 import ex.nervisking.ExClan;
+import ex.nervisking.config.SettingConfig;
 import ex.nervisking.config.gui.ConfigMainGui;
 import ex.nervisking.gui.home.HomeMenu;
 import ex.nervisking.models.Clan;
@@ -15,13 +16,20 @@ import org.jetbrains.annotations.NotNull;
 
 public class MainClan extends Menu<ExClan> {
 
+    private final SettingConfig settingConfig;
     private final ConfigMainGui configMainGui;
     private final Clan clan;
 
     public MainClan(@NotNull Player player, @NotNull Clan clan) {
         super(player);
-        this.clan = clan;
+        this.settingConfig = plugin.getSettingConfig();
         this.configMainGui = plugin.getConfigMainGui();
+        this.clan = clan;
+    }
+
+    @Override
+    public String setSection() {
+        return "clan";
     }
 
     @Override
@@ -71,6 +79,12 @@ public class MainClan extends Menu<ExClan> {
                         menuUser.sendLang("not-leader");
                         return;
                     }
+
+                    if (!settingConfig.isChestEnable()) {
+                        menuUser.sendLang("chest.disabled");
+                        return;
+                    }
+
                     clan.getChest().openSharedChest(player);
                 }
                 case MEMBER -> openMenu(new MembersMenu(player, clan));

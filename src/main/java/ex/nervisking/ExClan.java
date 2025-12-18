@@ -10,6 +10,7 @@ import ex.api.base.language.LanguageService;
 import ex.api.base.model.CustomColor;
 import ex.api.base.task.Scheduler;
 import ex.api.base.task.Task;
+import ex.nervisking.config.SettingConfig;
 import ex.nervisking.config.gui.*;
 import ex.nervisking.events.ChatEvent;
 import ex.nervisking.hook.Papi;
@@ -27,6 +28,7 @@ import ex.nervisking.events.JoinAndLeaveEvent;
 @PluginInfo(pyfiglet = true, menu = @MenuInfo(enable = true))
 public class ExClan extends ExPlugin {
 
+    private SettingConfig settingConfig;
     private MainConfig mainConfig;
     private DataConfig dataConfig;
 
@@ -72,8 +74,10 @@ public class ExClan extends ExPlugin {
 
         VaultHook.setupEconomy();
 
+        this.settingConfig = new SettingConfig();
+
         // Idioma
-        this.language = LanguageService.register(Lang.ES, "Lang").addFiles(Lang.ES);
+        this.language = LanguageService.register(Lang.ES, "Lang").addFiles(Lang.ES).setPlayerLang(settingConfig.isPlayerLang());
         this.language.load();
 
         this.clanManager = new ClanManager();
@@ -126,6 +130,7 @@ public class ExClan extends ExPlugin {
 
     @Override
     protected void onReload() {
+        this.settingConfig.reload();
         this.mainConfig.reload();
         this.language.reload();
         this.configHome.reload();
@@ -183,5 +188,9 @@ public class ExClan extends ExPlugin {
 
     public ConfigIcon getConfigIcon() {
         return configIcon;
+    }
+
+    public SettingConfig getSettingConfig() {
+        return settingConfig;
     }
 }

@@ -61,7 +61,11 @@ public class GuiIcon extends Menu<ExClan> {
             this.setItem(entry.getValue().getSlot(), entry.getValue().getItemBuilder(player));
         }
 
-        this.setItem(icon, ItemBuilder.of(clan.getIcon().clone()).setName(clan.getClanTag()));
+        if (clan.hasIcon()) {
+            this.setItem(icon, ItemBuilder.of(clan.getIcon().clone()).setName(clan.getClanTag()));
+        } else {
+            this.put(icon, null);
+        }
     }
 
     @Override
@@ -71,7 +75,6 @@ public class GuiIcon extends Menu<ExClan> {
         ItemStack cursor = event.getCursor();
         int slot = event.getSlot();
         if (event.getSlot(icon)) {
-
             if (sendCooldown(clan.getClanName())) {
                 event.setCancelled(true);
                 return;
@@ -108,16 +111,19 @@ public class GuiIcon extends Menu<ExClan> {
                 user.sendLang("icon.set");
                 Scheduler.runLater(()-> this.setItem(icon, ItemBuilder.of(clan.getIcon().clone()).setName(clan.getClanTag())), 1);
             }
-        } else if (get(slot) != null) {
-            switch (get(slot)) {
-                case CLOSE -> this.closeInventory();
-                case MAIN -> openMenu(new MainClan(player, clan));
-            }
         } else {
-            for (var itemData : configIcon.getOtherItems()) {
-                if (itemData.getSlot(slot) && itemData.hasActions()) {
-                    executeActions(player, itemData.getActions());
-                    break;
+            event.setCancelled();
+            if (get(slot) != null) {
+                switch (get(slot)) {
+                    case CLOSE -> this.closeInventory();
+                    case MAIN -> openMenu(new MainClan(player, clan));
+                }
+            } else {
+                for (var itemData : configIcon.getOtherItems()) {
+                    if (itemData.getSlot(slot) && itemData.hasActions()) {
+                        executeActions(player, itemData.getActions());
+                        break;
+                    }
                 }
             }
         }
