@@ -3,6 +3,7 @@ package ex.nervisking.gui;
 import ex.api.base.gui.*;
 import ex.api.base.item.ItemBuilder;
 import ex.api.base.model.ParseVariable;
+import ex.api.base.utils.Text;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.gui.ConfigBanned;
 import ex.nervisking.models.Clan;
@@ -35,8 +36,8 @@ public class BannedMenu extends MenuPages<ExClan> {
     }
 
     @Override
-    public String setName() {
-        return configAlly.getTitle();
+    public Text setName() {
+        return Text.of(configAlly.getTitle());
     }
 
     @Override

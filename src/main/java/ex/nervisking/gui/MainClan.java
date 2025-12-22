@@ -5,6 +5,7 @@ import ex.api.base.gui.MenuEvent;
 import ex.api.base.gui.MenuUser;
 import ex.api.base.gui.Row;
 import ex.api.base.model.ParseVariable;
+import ex.api.base.utils.Text;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.SettingConfig;
 import ex.nervisking.config.gui.ConfigMainGui;
@@ -33,8 +34,8 @@ public class MainClan extends Menu<ExClan> {
     }
 
     @Override
-    public String setName() {
-        return configMainGui.getTitle();
+    public Text setName() {
+        return Text.of(configMainGui.getTitle());
     }
 
     @Override

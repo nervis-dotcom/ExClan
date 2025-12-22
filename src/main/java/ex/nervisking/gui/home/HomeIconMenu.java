@@ -4,6 +4,7 @@ import ex.api.base.gui.MenuEvent;
 import ex.api.base.gui.MenuPages;
 import ex.api.base.gui.Row;
 import ex.api.base.item.RDMaterial;
+import ex.api.base.utils.Text;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.gui.ConfigHomeIcon;
 import ex.nervisking.models.Homes;
@@ -41,8 +42,8 @@ public class HomeIconMenu extends MenuPages<ExClan> {
     }
 
     @Override
-    public String setName() {
-        return configHomeIcon.getTitle();
+    public Text setName() {
+        return Text.of(configHomeIcon.getTitle());
     }
 
     @Override

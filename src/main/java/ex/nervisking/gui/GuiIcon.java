@@ -6,6 +6,7 @@ import ex.api.base.gui.MenuUser;
 import ex.api.base.gui.Row;
 import ex.api.base.item.ItemBuilder;
 import ex.api.base.task.Scheduler;
+import ex.api.base.utils.Text;
 import ex.nervisking.ExClan;
 import ex.nervisking.config.gui.ConfigIcon;
 import ex.nervisking.models.Clan;
@@ -33,8 +34,8 @@ public class GuiIcon extends Menu<ExClan> {
     }
 
     @Override
-    public String setName() {
-        return configIcon.getTitle();
+    public Text setName() {
+        return Text.of(configIcon.getTitle());
     }
 
     @Override
